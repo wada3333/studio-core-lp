@@ -1,0 +1,891 @@
+/* ===========================================================================
+   STUDIO CORE / main.css
+   critical.css の後に非同期で読み込まれる分（ファーストビュー外のスタイル）
+   =========================================================================== */
+
+/* --- 共通パーツ ------------------------------------------------------ */
+
+.lede {
+  max-width: var(--measure);
+  margin-top: 1.5rem;
+}
+
+.rule {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 0;
+}
+
+.media {
+  background: var(--panel);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.media img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* 画像の縦横比は width / height 属性（実ファイルの比率）で決まるので、
+   CSS 側で aspect-ratio を上書きしない。トリミングもCLSも発生しない。 */
+
+figcaption {
+  margin-top: 0.6rem;
+  font-size: var(--fs-small);
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* --- 02 選ばれる理由：カードを使わず幅と字下げだけで階層を作る ------- */
+
+.reasons {
+  margin-top: 2.75rem;
+  display: grid;
+  gap: clamp(3rem, 7vw, 4.5rem);
+}
+
+.reason__no {
+  font-family: var(--font-num);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+.reason__title {
+  margin-top: 0.35rem;
+  font-size: var(--fs-h3);
+  font-weight: 600;
+}
+
+.reason__text {
+  margin-top: 0.85rem;
+  max-width: 34rem;
+}
+
+.reason__media {
+  margin-top: 1.5rem;
+}
+
+/* 1つ目：最も広く */
+.reason--wide .reason__media {
+  max-width: 36rem;
+}
+
+/* 2つ目：字下げして中幅 */
+.reason--inset {
+  margin-left: clamp(0rem, 6vw, 5rem);
+  max-width: 30rem;
+}
+
+
+/* 3つ目：テキスト主・画像は小さく横に置く */
+.reason--text {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 13rem;
+  gap: clamp(1.25rem, 4vw, 2.5rem);
+  align-items: start;
+}
+
+.reason--text .reason__media {
+  margin-top: 0;
+}
+
+
+@media (max-width: 44em) {
+  .reason--text {
+    grid-template-columns: 1fr;
+  }
+
+  .reason--text .reason__media {
+    max-width: 16rem;
+    margin-top: 1.25rem;
+  }
+}
+
+/* --- 03 料金 --------------------------------------------------------- */
+
+.plan-table-wrap {
+  margin-top: 2rem;
+  overflow-x: auto;
+}
+
+.plan-table {
+  width: 100%;
+  min-width: 34rem;
+  border-collapse: collapse;
+  text-align: left;
+  background: var(--panel);
+}
+
+.plan-table caption {
+  text-align: left;
+  font-size: var(--fs-small);
+  color: var(--muted);
+  padding-bottom: 0.6rem;
+}
+
+.plan-table th,
+.plan-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.85rem 1rem;
+  vertical-align: top;
+  line-height: 1.7;
+}
+
+.plan-table thead th {
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.plan-table tbody th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.plan-table .price {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.plan-table .summary {
+  color: var(--muted);
+  font-size: var(--fs-small);
+  min-width: 14rem;
+}
+
+.plan-table tbody tr:last-child th,
+.plan-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.plan-note {
+  margin-top: 1rem;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+/* --- 料金シミュレーター（伝票組み） ---------------------------------- */
+
+.sim {
+  margin-top: clamp(2.5rem, 6vw, 3.5rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  align-items: start;
+}
+
+@media (max-width: 52em) {
+  .sim {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sim__title {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+}
+
+.sim__hint {
+  margin-top: 0.5rem;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+.sim fieldset {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 1.5rem 0 0;
+  padding: 1.1rem 0 0;
+}
+
+.sim legend {
+  padding: 0;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.choice {
+  position: relative;
+}
+
+.choice input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.choice span {
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0.5rem 0.95rem;
+  background: var(--panel);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.choice input:checked + span {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.choice input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.choice input:hover:not(:checked) + span {
+  border-color: var(--muted);
+}
+
+.checks {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.85rem;
+}
+
+.check {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: start;
+  cursor: pointer;
+  line-height: 1.7;
+}
+
+.check input {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin: 0.4rem 0 0;
+  accent-color: var(--accent);
+}
+
+.check small {
+  display: block;
+  color: var(--muted);
+  font-size: var(--fs-small);
+}
+
+/* 伝票（結果表示） */
+.receipt {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 1.25rem 1.35rem 1.4rem;
+  position: sticky;
+  top: 1rem;
+}
+
+.receipt__head {
+  font-size: var(--fs-small);
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.75rem;
+}
+
+.receipt__plan {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.receipt__rows {
+  margin: 0.9rem 0 0;
+  font-size: var(--fs-small);
+}
+
+.receipt__row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+}
+
+.receipt__row dt {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* 伝票らしいリーダー罫（点線） */
+.receipt__row::after {
+  content: "";
+  order: 1;
+  flex: 1 1 auto;
+  border-bottom: 1px dotted var(--line);
+  transform: translateY(-0.25em);
+}
+
+.receipt__row dd {
+  order: 2;
+  margin: 0;
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.receipt__total {
+  margin-top: 1rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.9rem;
+}
+
+.receipt__total-label {
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+.receipt__amount {
+  display: block;
+  margin-top: 0.15rem;
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.6rem, 4.5vw, 2rem);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.receipt__amount span {
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin-left: 0.15rem;
+}
+
+.receipt__sub {
+  margin-top: 0.65rem;
+  font-size: var(--fs-small);
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.receipt__actions {
+  margin-top: 1.15rem;
+}
+
+.receipt__actions .btn {
+  width: 100%;
+}
+
+/* --- 04 トレーナー：カードではなく横罫の行 --------------------------- */
+
+.people {
+  margin-top: 2.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.person {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 2rem);
+  padding: clamp(1.5rem, 3.5vw, 2rem) 0;
+  border-bottom: 1px solid var(--line);
+  align-items: start;
+}
+
+.person__photo img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 3px;
+  background: var(--panel);
+}
+
+.person__name {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+}
+
+.person__role {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+.person__word {
+  margin-top: 0.85rem;
+  max-width: 34rem;
+}
+
+.person__meta {
+  margin-top: 0.75rem;
+  font-size: var(--fs-small);
+  color: var(--muted);
+  font-family: var(--font-num);
+}
+
+@media (max-width: 34em) {
+  .person {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+  }
+}
+
+/* --- 05 お客様の声 --------------------------------------------------- */
+
+.voices {
+  margin-top: 2.25rem;
+  display: grid;
+  gap: clamp(2rem, 5vw, 3rem);
+  max-width: 44rem;
+}
+
+.voice {
+  margin: 0;
+  padding-left: 1.1rem;
+  border-left: 2px solid var(--accent);
+}
+
+.voice p {
+  margin: 0;
+}
+
+.voice figcaption {
+  margin-top: 0.9rem;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+.voice figcaption b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* --- 06 予約フォーム ------------------------------------------------- */
+
+.booking {
+  margin-top: 2.25rem;
+  max-width: 40rem;
+}
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+  margin: 0 0 1.75rem;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-small);
+  color: var(--muted);
+  font-family: var(--font-num);
+}
+
+.steps li[aria-current="step"] {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.step {
+  border-top: 1px solid var(--line);
+  padding-top: 1.35rem;
+  margin-top: 1.35rem;
+}
+
+.step:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.step[hidden] {
+  display: none;
+}
+
+.step__title {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+}
+
+.step__title:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.step__hint {
+  margin-top: 0.4rem;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+.field {
+  margin-top: 1.25rem;
+}
+
+.field > label,
+.field__label {
+  display: block;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.req {
+  color: var(--accent);
+  font-weight: 600;
+  margin-left: 0.25rem;
+}
+
+.opt {
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 0.25rem;
+}
+
+input[type="date"],
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+textarea {
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0.7rem 0.8rem;
+  line-height: 1.6;
+}
+
+input[type="date"] {
+  font-family: var(--font-num);
+  max-width: 16rem;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 6.5rem;
+}
+
+input:hover,
+textarea:hover {
+  border-color: var(--muted);
+}
+
+input[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  border-color: #8c2f22;
+  border-width: 2px;
+}
+
+.field__error {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: var(--fs-small);
+  color: #8c2f22;
+  line-height: 1.7;
+  min-height: 0;
+}
+
+.field__error:empty {
+  display: none;
+}
+
+/* 空き枠 */
+.slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.slots .choice span {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  min-width: 5.25rem;
+  text-align: center;
+}
+
+.status {
+  margin-top: 1rem;
+  font-size: var(--fs-small);
+  line-height: 1.8;
+  min-height: 0;
+}
+
+.status:empty {
+  display: none;
+}
+
+.status--loading {
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.status--error {
+  color: #8c2f22;
+  background: #fbf1ef;
+  border-left: 3px solid #8c2f22;
+  padding: 0.7rem 0.9rem;
+}
+
+.status--empty {
+  color: var(--muted);
+  background: var(--panel);
+  border-left: 3px solid var(--line);
+  padding: 0.7rem 0.9rem;
+}
+
+.status__retry {
+  margin-top: 0.6rem;
+}
+
+/* ローディングインジケータ（reduced-motion では点滅を止める） */
+.spinner {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex: none;
+  border: 2px solid var(--line);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: sc-spin 0.8s linear infinite;
+}
+
+@keyframes sc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+    border-top-color: var(--accent);
+    border-right-color: var(--accent);
+  }
+}
+
+.form-actions {
+  margin-top: 1.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.summary-box {
+  margin-top: 1.25rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0.9rem 1rem;
+  font-size: var(--fs-small);
+  line-height: 1.8;
+}
+
+.summary-box b {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 完了表示 */
+.done {
+  border-top: 1px solid var(--line);
+  padding-top: 1.75rem;
+}
+
+.done[hidden] {
+  display: none;
+}
+
+.done__title {
+  font-size: var(--fs-h2);
+  font-weight: 600;
+}
+
+.done__body {
+  margin-top: 1rem;
+  max-width: var(--measure);
+}
+
+.done__id {
+  margin-top: 1.25rem;
+  font-family: var(--font-num);
+  font-size: var(--fs-small);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0.7rem 0.9rem;
+  display: inline-block;
+}
+
+/* --- 07 FAQ ---------------------------------------------------------- */
+
+.faq {
+  margin-top: 2rem;
+  max-width: 44rem;
+  border-top: 1px solid var(--line);
+}
+
+.faq details {
+  border-bottom: 1px solid var(--line);
+}
+
+.faq summary {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 1.1rem 0;
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+  line-height: 1.7;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary::before {
+  content: "＋";
+  font-family: var(--font-num);
+  color: var(--accent);
+  flex: none;
+  font-weight: 400;
+}
+
+.faq details[open] summary::before {
+  content: "−";
+}
+
+.faq summary:hover {
+  color: var(--accent);
+}
+
+.faq summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.faq__body {
+  padding: 0 0 1.35rem 1.65rem;
+  color: var(--muted);
+  max-width: 40rem;
+}
+
+/* --- フッター -------------------------------------------------------- */
+
+.site-foot {
+  border-top: 1px solid var(--line);
+  margin-top: var(--sec-space);
+  padding-block: clamp(2.5rem, 6vw, 3.5rem) clamp(4.5rem, 9vw, 6rem);
+  font-size: var(--fs-small);
+  color: var(--muted);
+  line-height: 1.9;
+}
+
+.site-foot__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1.75rem 2.5rem;
+}
+
+.site-foot dt {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.site-foot dd {
+  margin: 0.2rem 0 0;
+}
+
+.site-foot__copy {
+  margin-top: 2.5rem;
+  font-family: var(--font-num);
+  font-size: 0.75rem;
+}
+
+.site-foot address {
+  font-style: normal;
+}
+
+/* --- ページを縦断するヘアラインの終端 -------------------------------------
+   01 共感パートから 06 予約フォームまでを1本の線でつなぎ、FAQ 以降は切り離す。
+   レイアウトを動かさないよう、線は消さずに色だけ透明にする。 */
+#faq > .sec__body {
+  border-left-color: transparent;
+}
+
+/* --- 料金表：狭い画面ではカード状に縦積みする ----------------------------
+   role を明示しているため、display を変えても表としての読み上げは保たれる。 */
+@media (max-width: 40em) {
+  .plan-table-wrap {
+    overflow-x: visible;
+  }
+
+  .plan-table {
+    min-width: 0;
+    background: transparent;
+  }
+
+  .plan-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .plan-table tbody tr {
+    display: block;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.9rem 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .plan-table tbody th,
+  .plan-table tbody td {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 0;
+    padding: 0.15rem 0;
+  }
+
+  .plan-table tbody th {
+    font-size: var(--fs-h3);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .plan-table tbody td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: var(--fs-small);
+    flex: none;
+  }
+
+  .plan-table tbody td.summary {
+    display: block;
+    margin-top: 0.5rem;
+    min-width: 0;
+  }
+
+  .plan-table tbody td.summary::before {
+    display: block;
+  }
+}

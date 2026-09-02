@@ -1,0 +1,59 @@
+{
+  "meta": {
+    "name": "STUDIO CORE 料金定義",
+    "currency": "JPY",
+    "taxIncluded": true,
+    "updatedAt": "2026-09-01",
+    "note": "金額は税込。月額 = 基準単価 x 月あたり回数 x (1 - 回数割引 - 期間割引)。割引は加算方式。"
+  },
+  "pricing": {
+    "unitPrice": 8250,
+    "sessionsPerMonthPerWeekly": 4,
+    "roundTo": 10,
+    "enrollmentFee": 22000,
+    "enrollmentFeeWaiver": {
+      "condition": "counselingDayJoin",
+      "label": "無料カウンセリング当日の入会で入会金 22,000円が無料"
+    }
+  },
+  "frequencies": [
+    { "value": 1, "label": "週1回", "discountRate": 0.00 },
+    { "value": 2, "label": "週2回", "discountRate": 0.10 },
+    { "value": 3, "label": "週3回", "discountRate": 0.15 }
+  ],
+  "terms": [
+    { "months": 3,  "label": "3ヶ月",  "discountRate": 0.00 },
+    { "months": 6,  "label": "6ヶ月",  "discountRate": 0.10 },
+    { "months": 12, "label": "12ヶ月", "discountRate": 0.15 }
+  ],
+  "options": [
+    { "id": "meal",    "label": "食事サポート",          "monthly": 11000, "note": "毎日の食事記録に管理栄養士監修のフィードバック" },
+    { "id": "stretch", "label": "パーソナルストレッチ",  "monthly": 5500,  "note": "セッション後30分のコンディショニング" }
+  ],
+  "plans": [
+    {
+      "id": "light",
+      "name": "ライト",
+      "frequency": 1,
+      "months": 3,
+      "summary": "まず3ヶ月、週1回から。通えることを確かめる期間です。",
+      "recommended": false
+    },
+    {
+      "id": "standard",
+      "name": "スタンダード",
+      "frequency": 2,
+      "months": 3,
+      "summary": "週2回。体の変化が数字と実感の両方で出はじめるペースです。",
+      "recommended": true
+    },
+    {
+      "id": "commit",
+      "name": "コミット",
+      "frequency": 2,
+      "months": 6,
+      "summary": "半年かけて習慣にする。月額がもっとも下がる組み合わせです。",
+      "recommended": false
+    }
+  ]
+}

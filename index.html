@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STUDIO CORE｜続かなかった人のための完全個室パーソナルジム（東京・渋谷）</title>
+<meta name="description" content="ジム通いが続かなかった30〜40代のための完全個室・少人数制パーソナルジム。人目のない個室と専属トレーナー担当制で、週1回から無理なく続けられます。無料カウンセリングの予約はオンラインで完結。">
+<link rel="canonical" href="https://studio-core.example.jp/">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#e9eceA">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="STUDIO CORE">
+<meta property="og:title" content="STUDIO CORE｜続かなかった人のための完全個室パーソナルジム">
+<meta property="og:description" content="人目も、比べる相手もない完全個室。続かなかった理由の方から片づける、東京・渋谷のパーソナルジムです。">
+<meta property="og:url" content="https://studio-core.example.jp/">
+<meta property="og:image" content="https://studio-core.example.jp/assets/images/hero.webp">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="STUDIO CORE｜続かなかった人のための完全個室パーソナルジム">
+<meta name="twitter:description" content="人目も、比べる相手もない完全個室。続かなかった理由の方から片づける、東京・渋谷のパーソナルジムです。">
+<meta name="twitter:image" content="https://studio-core.example.jp/assets/images/hero.webp">
+
+<link rel="preload" as="image" href="assets/images/hero.webp"
+      imagesrcset="assets/images/hero-800.webp 800w, assets/images/hero-1200.webp 1200w, assets/images/hero.webp 1600w"
+      imagesizes="100vw" fetchpriority="high">
+
+<!-- ===========================================================
+     Critical CSS（css/critical.css のインライン展開。編集時は両方を更新すること）
+     残りの CSS は下の preload で非同期に読み込む。
+     =========================================================== -->
+<style>
+:root{
+  --paper:#e9eceA;--panel:#f7f8f7;--ink:#1b2523;--muted:#4f5c5a;--line:#c3cac6;--accent:#2e5a50;
+  --font-sans:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","Yu Gothic UI","Noto Sans JP",Meiryo,sans-serif;
+  --font-num:ui-monospace,"SFMono-Regular","Cascadia Mono",Menlo,Consolas,"Courier New",monospace;
+  --fs-h1:clamp(1.75rem,5.2vw,2.875rem);--fs-h2:clamp(1.3125rem,2.6vw,1.6875rem);--fs-h3:clamp(1.0625rem,1.4vw,1.1875rem);
+  --fs-body:1rem;--fs-small:.8125rem;
+  --rail:148px;--measure:40rem;--page-max:68rem;--gutter:clamp(1.25rem,4vw,2.5rem);--sec-space:clamp(3.5rem,8vw,6rem);
+}
+@media (max-width:47.99em){:root{--rail:2.75rem}}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);font-size:var(--fs-body);line-height:1.95;text-underline-offset:.2em}
+h1,h2,h3,.faq summary,.receipt__amount{font-feature-settings:"palt" 1}
+h1,h2,h3,p,ul,ol,figure,blockquote,dl,dd{margin:0}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+.skip-link{position:absolute;left:var(--gutter);top:0;z-index:100;padding:.6rem 1rem;background:var(--accent);color:#fff;text-decoration:none;transform:translateY(-150%)}
+.skip-link:focus{transform:translateY(0)}
+.visually-hidden{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+.num{font-family:var(--font-num);font-variant-numeric:tabular-nums;letter-spacing:0}
+.wrap{max-width:var(--page-max);margin-inline:auto;padding-inline:var(--gutter)}
+.site-head{border-bottom:1px solid var(--line)}
+.site-head__inner{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:3.5rem}
+.wordmark{font-family:var(--font-num);font-size:.9375rem;letter-spacing:.04em;font-weight:600;text-decoration:none}
+.site-nav{display:flex;gap:clamp(.75rem,3vw,1.75rem);font-size:var(--fs-small)}
+.site-nav a{color:var(--muted);text-decoration:none;padding-block:.5rem}
+.site-nav a:hover{color:var(--ink);text-decoration:underline}
+.btn{display:inline-block;border:1px solid transparent;border-radius:3px;padding:.9rem 1.6rem;font-size:.9375rem;font-weight:600;line-height:1.4;text-align:center;text-decoration:none;cursor:pointer;background:var(--accent);color:#fff}
+.btn:hover{background:color-mix(in srgb,var(--accent) 84%,var(--ink))}
+.btn:disabled{background:var(--muted);cursor:not-allowed;opacity:.72}
+.btn--ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn--ghost:hover{background:var(--panel);border-color:var(--muted)}
+.btn--small{padding:.55rem 1rem;font-size:var(--fs-small)}
+.btn-note{display:block;margin-top:.65rem;font-size:var(--fs-small);color:var(--muted);line-height:1.7}
+.hero{position:relative;isolation:isolate;padding-block:clamp(3.5rem,10vw,6.5rem);min-height:min(78vh,40rem);display:flex;align-items:center;overflow:hidden}
+.hero__media{position:absolute;inset:0;z-index:-1;background:var(--panel)}
+.hero__media img{width:100%;height:100%;object-fit:cover}
+.hero__media::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,rgba(233,236,234,.97) 0%,rgba(233,236,234,.95) 46%,rgba(233,236,234,.62) 100%)}
+.hero__video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .7s ease}.hero__media.is-playing .hero__video{opacity:1}@media (prefers-reduced-motion:reduce){.hero__video{display:none}}
+.hero__inner{width:100%}
+.hero__title{font-size:var(--fs-h1);line-height:1.5;font-weight:600;letter-spacing:.01em;max-width:18em}
+.hero__lead{margin-top:1.5rem;max-width:var(--measure);color:var(--muted)}
+.hero__actions{margin-top:2rem}
+.sec{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);align-items:start}
+.sec__index{font-family:var(--font-num);font-size:var(--fs-small);color:var(--muted);padding-top:calc(var(--sec-space) + .35rem);padding-right:1rem;letter-spacing:.06em}
+.sec__body{border-left:1px solid var(--line);padding:var(--sec-space) 0 var(--sec-space) clamp(1.25rem,3vw,2.25rem);min-width:0}
+.sec__title{font-size:var(--fs-h2);line-height:1.55;font-weight:600;max-width:22em}
+.sec__lead{margin-top:1.25rem;max-width:var(--measure);color:var(--muted)}
+.timeline{margin-top:2.5rem;display:grid;gap:clamp(1.75rem,4vw,2.5rem);max-width:44rem}.timeline__item{display:grid;grid-template-columns:6.5rem minmax(0,1fr);gap:0 1rem}.timeline__when{font-family:var(--font-num);font-size:var(--fs-small);color:var(--muted);padding-top:.45rem;letter-spacing:.02em}.timeline__text{margin:0}.empathy__close{margin-top:clamp(2.5rem,5vw,3.25rem);max-width:38rem;font-size:var(--fs-h3);line-height:1.85}@media (max-width:40em){.timeline__item{grid-template-columns:1fr;gap:.25rem}.timeline__when{padding-top:0}}
+#empathy,#reasons,#pricing,#trainers,#voices,#booking,#faq,.site-foot{content-visibility:auto}
+#empathy{contain-intrinsic-size:auto 1050px}#reasons{contain-intrinsic-size:auto 1950px}#pricing{contain-intrinsic-size:auto 1650px}#trainers{contain-intrinsic-size:auto 1100px}#voices{contain-intrinsic-size:auto 900px}#booking{contain-intrinsic-size:auto 560px}#faq{contain-intrinsic-size:auto 630px}.site-foot{contain-intrinsic-size:auto 450px}
+.sticky-cta{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--ink);color:var(--paper);border-top:1px solid var(--ink);transform:translateY(110%);transition:transform .28s ease;will-change:transform}
+.sticky-cta.is-visible{transform:translateY(0)}
+.sticky-cta__inner{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.7rem}
+.sticky-cta__text{font-size:var(--fs-small);line-height:1.6;margin:0}
+.sticky-cta .btn{flex:none}
+.sticky-cta :focus-visible{outline-color:var(--paper)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+</style>
+
+<link rel="preload" href="css/main.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="css/main.css"></noscript>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ExerciseGym",
+  "name": "STUDIO CORE",
+  "description": "続かなかった人のための完全個室・少人数制パーソナルジム。専属トレーナー担当制と食事サポートで、週1回から続けられる設計にしています。",
+  "url": "https://studio-core.example.jp/",
+  "image": "https://studio-core.example.jp/assets/images/hero.webp",
+  "telephone": "+81-3-0000-0000",
+  "priceRange": "￥￥",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "○○ 1-2-3 コアビル 4F",
+    "addressLocality": "渋谷区",
+    "addressRegion": "東京都",
+    "postalCode": "150-0000",
+    "addressCountry": "JP"
+  },
+  "openingHoursSpecification": [{
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday", "Tuesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    "opens": "10:00",
+    "closes": "21:00"
+  }],
+  "makesOffer": [
+    { "@type": "Offer", "name": "ライト（週1回・3ヶ月）", "price": "33000", "priceCurrency": "JPY" },
+    { "@type": "Offer", "name": "スタンダード（週2回・3ヶ月）", "price": "59400", "priceCurrency": "JPY" },
+    { "@type": "Offer", "name": "コミット（週2回・6ヶ月）", "price": "52800", "priceCurrency": "JPY" }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "運動経験がまったくありません。ついていけますか。",
+      "acceptedAnswer": { "@type": "Answer", "text": "ご入会の8割が運動経験のない方です。初回は可動域と生活リズムの確認だけで終わることもあります。負荷は3回目以降から少しずつ足していきます。" } },
+    { "@type": "Question", "name": "他の利用者と顔を合わせますか。",
+      "acceptedAnswer": { "@type": "Answer", "text": "トレーニングルームは完全個室で、更衣も個室内で完結します。予約枠を90分刻みでずらしているため、入れ替わりの時間帯以外で他の方と会うことはほとんどありません。" } },
+    { "@type": "Question", "name": "予約の変更やキャンセルはできますか。",
+      "acceptedAnswer": { "@type": "Answer", "text": "前日21時までのご連絡で無料で振替できます。当日のキャンセルは1回分の消化となりますが、体調不良の場合はこの限りではありません。" } },
+    { "@type": "Question", "name": "食事は制限されますか。",
+      "acceptedAnswer": { "@type": "Answer", "text": "禁止食は設けません。食事サポートは記録に対して選択肢を足していく形式です。外食や飲み会の予定を先に共有していただければ、その前後で調整します。" } },
+    { "@type": "Question", "name": "途中で通えなくなった場合はどうなりますか。",
+      "acceptedAnswer": { "@type": "Answer", "text": "月単位で休会できます（休会中の月会費は不要、事務手数料1,100円）。残ったセッションは有効期限内であれば再開後に消化いただけます。" } },
+    { "@type": "Question", "name": "無料カウンセリングでは何をしますか。",
+      "acceptedAnswer": { "@type": "Answer", "text": "所要60分です。これまで続かなかった状況の聞き取り、体組成の測定、20分程度の体験トレーニングを行います。その場での入会手続きは必須ではありません。" } }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">本文へスキップ</a>
+
+<header class="site-head">
+  <div class="wrap site-head__inner">
+    <a class="wordmark" href="#main">STUDIO&nbsp;CORE</a>
+    <nav class="site-nav" aria-label="ページ内メニュー">
+      <a href="#reasons">選ばれる理由</a>
+      <a href="#pricing">料金</a>
+      <a href="#trainers">トレーナー</a>
+      <a href="#booking">予約</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============================ ヒーロー ============================ -->
+  <section class="hero" aria-labelledby="hero-title">
+    <!-- 背景。装飾なので alt は空にし、内容は本文で伝える。
+         動画は js/ui.js が「広い画面 かつ prefers-reduced-motion でない」場合にだけ、
+         load 後に生成して再生する（モバイルでは読み込まない／LCPを妨げない）。 -->
+    <div class="hero__media"
+         data-video="assets/video/hero-loop.mp4"
+         data-poster="assets/images/hero.webp">
+      <img src="assets/images/hero.webp"
+           srcset="assets/images/hero-800.webp 800w, assets/images/hero-1200.webp 1200w, assets/images/hero.webp 1600w"
+           sizes="100vw"
+           width="1600" height="893" alt="" fetchpriority="high" decoding="async">
+    </div>
+    <div class="wrap hero__inner">
+      <h1 class="hero__title" id="hero-title">続かなかった人が、<br>続けている。</h1>
+      <p class="hero__lead">完全個室・少人数制のパーソナルジムです。人目も、比べる相手もありません。週1回90分から、東京・渋谷の小さなスタジオで。</p>
+      <p class="hero__actions">
+        <a class="btn" href="#booking" data-cta="hero">無料カウンセリングを予約する</a>
+        <span class="btn-note">所要60分／体験トレーニング付き／当日の入会手続きは必須ではありません</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ======================= 01 共感パート ========================== -->
+  <section class="sec wrap" id="empathy" aria-labelledby="empathy-title">
+    <p class="sec__index" aria-hidden="true">01</p>
+    <div class="sec__body">
+      <h2 class="sec__title" id="empathy-title">やめてしまったのは、意志が弱かったからではありません。</h2>
+      <div class="timeline">
+        <div class="timeline__item">
+          <p class="timeline__when">入会1週目</p>
+          <p class="timeline__text">はりきってマシンの使い方を覚えようとしたけれど、周りは慣れた人ばかりでした。順番を待つあいだ、自分だけが場違いなような気がして、鏡のない隅を探していました。</p>
+        </div>
+        <div class="timeline__item">
+          <p class="timeline__when">1ヶ月目</p>
+          <p class="timeline__text">残業で行けない日が二日続いて、それきり足が向かなくなりました。会費の引き落とし通知だけが毎月届いて、開かずに消すのが習慣になりました。</p>
+        </div>
+        <div class="timeline__item">
+          <p class="timeline__when">3ヶ月目</p>
+          <p class="timeline__text">体重は少し落ちたものの、何が効いたのかは分からないままでした。やめた途端に戻り、あの数ヶ月はなんだったのかとだけ思いました。</p>
+        </div>
+        <div class="timeline__item">
+          <p class="timeline__when">半年後</p>
+          <p class="timeline__text">退会手続きをした帰り道で、次こそは続けようと考えていました。その「次こそ」が、もう三度目でした。</p>
+        </div>
+      </div>
+      <p class="empathy__close">続かなかった原因は、たいてい本人の外側にあります。人目が気になる、予約が取りづらい、正解が分からない。STUDIO CORE はこの三つを先に片づけてから、トレーニングの話を始めます。</p>
+    </div>
+  </section>
+
+  <!-- ======================= 02 選ばれる理由 ======================== -->
+  <section class="sec wrap" id="reasons" aria-labelledby="reasons-title">
+    <p class="sec__index" aria-hidden="true">02</p>
+    <div class="sec__body">
+      <h2 class="sec__title" id="reasons-title">続けるための条件を、先に整えました。</h2>
+      <p class="sec__lead">設備の豪華さではなく、通えなくなる理由をひとつずつ潰す方向で設計しています。</p>
+
+      <div class="reasons">
+        <article class="reason reason--wide">
+          <p class="reason__no" aria-hidden="true">01</p>
+          <h3 class="reason__title">完全個室。着替えから測定まで、部屋を出ません。</h3>
+          <p class="reason__text">トレーニングルームは一室ずつ独立していて、同じ時間に他の方が入ることはありません。更衣もシャワーも室内で完結します。体組成の測定値をその場で口に出されるのが苦手な方には、紙とアプリだけで共有する運用にも変更できます。</p>
+          <figure class="reason__media media">
+            <img src="assets/images/reason-1.webp" width="1200" height="896" alt="木のドアが閉じられた個室のトレーニングルーム。窓からの自然光の下に、パワーラックとベンチ、床のヨガマットが一組だけ置かれている" loading="lazy" decoding="async">
+          </figure>
+        </article>
+
+        <article class="reason reason--inset">
+          <p class="reason__no" aria-hidden="true">02</p>
+          <h3 class="reason__title">担当は最後まで同じトレーナーです。</h3>
+          <p class="reason__text">前回の説明をもう一度することも、体調の事情を毎回伝え直すこともありません。担当は入会時に決まり、変更を希望されない限り契約期間を通して替わりません。</p>
+          <figure class="reason__media media">
+            <img src="assets/images/reason-2.webp" width="1200" height="896" alt="個室で向かい合って椅子に座り、タブレットを膝に置いたトレーナーが利用者の話を聞いている様子" loading="lazy" decoding="async">
+          </figure>
+        </article>
+
+        <article class="reason reason--text">
+          <div>
+            <p class="reason__no" aria-hidden="true">03</p>
+            <h3 class="reason__title">食事は、禁止ではなく順番を変えるところから。</h3>
+            <p class="reason__text">食べてはいけないものは設けません。写真を送っていただければ、翌朝までに「次に足すもの」を一つだけ返します。飲み会や出張の予定を先に共有していただければ、その週の配分をこちらで組み替えます。制限を守れなかった記憶を増やさないことを優先しています。</p>
+          </div>
+          <figure class="reason__media media">
+            <img src="assets/images/reason-3.webp" width="1200" height="896" alt="木のテーブルに並んだ和定食（焼き魚・味噌汁・白米・小鉢）のそばで、食事記録アプリを開いたスマートフォンを持つ手元" loading="lazy" decoding="async">
+          </figure>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 料金＋シミュレーター ==================== -->
+  <section class="sec wrap" id="pricing" aria-labelledby="pricing-title">
+    <p class="sec__index" aria-hidden="true">03</p>
+    <div class="sec__body">
+      <h2 class="sec__title" id="pricing-title">料金は3プラン。組み合わせはその場で計算できます。</h2>
+      <p class="sec__lead">表示はすべて税込です。入会金 22,000円は、無料カウンセリング当日にご入会の場合は無料になります。</p>
+
+      <div class="plan-table-wrap">
+        <table class="plan-table" role="table">
+          <caption>基本プラン（税込・月額）</caption>
+          <thead role="rowgroup">
+            <tr role="row">
+              <th role="columnheader" scope="col">プラン</th>
+              <th role="columnheader" scope="col">週回数</th>
+              <th role="columnheader" scope="col">期間</th>
+              <th role="columnheader" scope="col">月額</th>
+              <th role="columnheader" scope="col" class="summary">向いている方</th>
+            </tr>
+          </thead>
+          <tbody role="rowgroup">
+            <tr role="row">
+              <th role="rowheader" scope="row">ライト</th>
+              <td role="cell" class="price" data-label="週回数">週1回</td>
+              <td role="cell" class="price" data-label="期間">3ヶ月</td>
+              <td role="cell" class="price" data-label="月額">33,000円</td>
+              <td role="cell" class="summary" data-label="向いている方">まず3ヶ月、通えることを確かめたい方</td>
+            </tr>
+            <tr role="row">
+              <th role="rowheader" scope="row">スタンダード</th>
+              <td role="cell" class="price" data-label="週回数">週2回</td>
+              <td role="cell" class="price" data-label="期間">3ヶ月</td>
+              <td role="cell" class="price" data-label="月額">59,400円</td>
+              <td role="cell" class="summary" data-label="向いている方">体の変化を実感まで持っていきたい方</td>
+            </tr>
+            <tr role="row">
+              <th role="rowheader" scope="row">コミット</th>
+              <td role="cell" class="price" data-label="週回数">週2回</td>
+              <td role="cell" class="price" data-label="期間">6ヶ月</td>
+              <td role="cell" class="price" data-label="月額">52,800円</td>
+              <td role="cell" class="summary" data-label="向いている方">半年かけて習慣にしたい方（月額が最も下がります）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="plan-note">オプション：食事サポート +11,000円/月、パーソナルストレッチ +5,500円/月</p>
+
+      <!-- 料金シミュレーター -->
+      <div class="sim">
+        <form id="sim-form" novalidate>
+          <h3 class="sim__title" id="sim-title">料金シミュレーター</h3>
+          <p class="sim__hint">週回数・期間・オプションを選ぶと、右の伝票がその場で書き換わります。</p>
+
+          <fieldset>
+            <legend>週の回数</legend>
+            <div class="choices" id="sim-frequency"></div>
+          </fieldset>
+
+          <fieldset>
+            <legend>契約期間</legend>
+            <div class="choices" id="sim-months"></div>
+          </fieldset>
+
+          <fieldset>
+            <legend>オプション</legend>
+            <div class="checks" id="sim-options"></div>
+          </fieldset>
+
+          <fieldset>
+            <legend>入会金</legend>
+            <div class="checks">
+              <label class="check" for="sim-waiver">
+                <input type="checkbox" id="sim-waiver" name="waiver" checked>
+                <span>無料カウンセリング当日に入会する
+                  <small>入会金 22,000円が無料になります。外すと総額に加算されます。</small>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+        </form>
+
+        <div class="receipt" id="sim-receipt" aria-labelledby="sim-title">
+          <p class="receipt__head">選択中のプラン<b class="receipt__plan" id="sim-plan-name">—</b></p>
+          <dl class="receipt__rows" id="sim-rows"></dl>
+          <div class="receipt__total" aria-live="polite">
+            <p class="receipt__total-label">月額（税込）</p>
+            <strong class="receipt__amount"><span id="sim-monthly">—</span><span>円</span></strong>
+            <p class="receipt__sub" id="sim-sub"></p>
+          </div>
+          <p class="receipt__actions">
+            <a class="btn" href="#booking" data-cta="pricing">この内容で無料カウンセリングへ</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 04 トレーナー ========================== -->
+  <section class="sec wrap" id="trainers" aria-labelledby="trainers-title">
+    <p class="sec__index" aria-hidden="true">04</p>
+    <div class="sec__body">
+      <h2 class="sec__title" id="trainers-title">担当する3人です。</h2>
+      <p class="sec__lead">カウンセリングでのお話をもとに、通う曜日と相性で担当を決めます。指名も承ります。</p>
+
+      <div class="people">
+        <article class="person">
+          <figure class="person__photo media">
+            <img src="assets/images/trainer-1.webp" width="600" height="600" alt="トレーナー 佐倉湊のポートレート" loading="lazy" decoding="async">
+          </figure>
+          <div>
+            <h3 class="person__name">佐倉 湊<span class="person__role">運動再開・腰まわりのケア</span></h3>
+            <p class="person__word">「三日で終わった」と話す方を8年見てきました。最初の1ヶ月は追い込みません。やめる理由を作らないことが、この期間の仕事だと思っています。</p>
+            <p class="person__meta">担当実績 620名／NSCA-CPT</p>
+          </div>
+        </article>
+
+        <article class="person">
+          <figure class="person__photo media">
+            <img src="assets/images/trainer-2.webp" width="600" height="600" alt="トレーナー 東千尋のポートレート" loading="lazy" decoding="async">
+          </figure>
+          <div>
+            <h3 class="person__name">東 千尋<span class="person__role">食事設計・生活リズム</span></h3>
+            <p class="person__word">外食が多い方ほど、削るより足すほうがうまくいきます。コンビニで買えるものだけで組み直すこともよくあります。</p>
+            <p class="person__meta">担当実績 480名／管理栄養士</p>
+          </div>
+        </article>
+
+        <article class="person">
+          <figure class="person__photo media">
+            <img src="assets/images/trainer-3.webp" width="600" height="600" alt="トレーナー 宮園岳のポートレート" loading="lazy" decoding="async">
+          </figure>
+          <div>
+            <h3 class="person__name">宮園 岳<span class="person__role">姿勢改善・デスクワークの疲労</span></h3>
+            <p class="person__word">重さを扱う前に、座り方と呼吸を整えます。肩と腰が軽くなると、次の予約が入れやすくなります。</p>
+            <p class="person__meta">担当実績 350名／理学療法士</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 05 お客様の声 ========================== -->
+  <section class="sec wrap" id="voices" aria-labelledby="voices-title">
+    <p class="sec__index" aria-hidden="true">05</p>
+    <div class="sec__body">
+      <h2 class="sec__title" id="voices-title">通われている方の話です。</h2>
+
+      <div class="voices">
+        <figure class="voice">
+          <blockquote><p>過去に2回やめています。ここでは初回に「行けない週があっても消さない」と言われたのが大きかったです。出張の週は振替にしてもらい、7ヶ月で一度も途切れていません。階段で息が上がらなくなった頃から、休日に子どもと出かける回数が増えました。</p></blockquote>
+          <figcaption><b>38歳・会社員（システム開発）</b>／通所7ヶ月／週2回</figcaption>
+        </figure>
+
+        <figure class="voice">
+          <blockquote><p>体重より先に、朝起きる時間が安定しました。夜のトレーニング後に食べすぎるのが悩みでしたが、食事の写真を送ると翌朝に一行だけ返信が来る形式で、責められている感じがしません。数字は5ヶ月で6kg落ちましたが、それより着替えが億劫でなくなったことが自分では大きいです。</p></blockquote>
+          <figcaption><b>42歳・会社員（法人営業）</b>／通所5ヶ月／週2回</figcaption>
+        </figure>
+
+        <figure class="voice">
+          <blockquote><p>大手のジムで人目が気になって続かなかった側です。個室で、担当も同じ方のまま。前回の話を繰り返さなくていいので、通うことに気力を使わなくなりました。10ヶ月経って、今は週1回に落として続けています。</p></blockquote>
+          <figcaption><b>34歳・会社員（人事）</b>／通所10ヶ月／週2回→週1回</figcaption>
+        </figure>
+      </div>
+      <p class="plan-note">※ 掲載は本人の許諾を得たものです。効果には個人差があります。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 06 無料カウンセリング予約 ================= -->
+  <section class="sec wrap" id="booking" aria-labelledby="booking-title">
+    <p class="sec__index" aria-hidden="true">06</p>
+    <div class="sec__body">
+      <h2 class="sec__title" id="booking-title">無料カウンセリングを予約する。</h2>
+      <p class="sec__lead">所要60分。体験トレーニング（20分程度）を含みます。当日の入会手続きは必須ではありません。持ち物は不要です。</p>
+
+      <div class="booking">
+        <ol class="steps" id="booking-steps">
+          <li data-step="1" aria-current="step">STEP 1　日付</li>
+          <li data-step="2">STEP 2　時間</li>
+          <li data-step="3">STEP 3　お客様情報</li>
+        </ol>
+
+        <form id="booking-form" novalidate>
+          <!-- STEP 1 -->
+          <div class="step" id="step-1">
+            <h3 class="step__title" id="step-1-title" tabindex="-1">ご希望の日付を選ぶ</h3>
+            <p class="step__hint">水曜定休です。翌日から60日先までご予約いただけます。</p>
+            <div class="field">
+              <label for="booking-date">希望日<span class="req">必須</span></label>
+              <input type="date" id="booking-date" name="date" required autocomplete="off"
+                     aria-describedby="booking-date-error">
+              <span class="field__error" id="booking-date-error"></span>
+            </div>
+            <div class="status" id="slots-status" role="status" aria-live="polite"></div>
+          </div>
+
+          <!-- STEP 2 -->
+          <div class="step" id="step-2" hidden>
+            <h3 class="step__title" id="step-2-title" tabindex="-1">空いている時間を選ぶ</h3>
+            <p class="step__hint">1枠90分。開始時刻を選んでください。</p>
+            <fieldset class="field">
+              <legend class="field__label">希望時間<span class="req">必須</span></legend>
+              <div class="slots" id="slots" role="group" aria-describedby="booking-time-error"></div>
+              <span class="field__error" id="booking-time-error"></span>
+            </fieldset>
+            <div class="form-actions">
+              <button type="button" class="btn" id="to-step-3">この時間で進む</button>
+              <button type="button" class="btn btn--ghost btn--small" id="back-to-step-1">日付を選び直す</button>
+            </div>
+          </div>
+
+          <!-- STEP 3 -->
+          <div class="step" id="step-3" hidden>
+            <h3 class="step__title" id="step-3-title" tabindex="-1">お客様情報を入力する</h3>
+            <p class="summary-box" id="booking-summary"></p>
+
+            <div class="field">
+              <label for="booking-name">お名前<span class="req">必須</span></label>
+              <input type="text" id="booking-name" name="name" required autocomplete="name"
+                     aria-describedby="booking-name-error">
+              <span class="field__error" id="booking-name-error"></span>
+            </div>
+
+            <div class="field">
+              <label for="booking-email">メールアドレス<span class="req">必須</span></label>
+              <input type="email" id="booking-email" name="email" required autocomplete="email"
+                     inputmode="email" aria-describedby="booking-email-error booking-email-hint">
+              <span class="field__error" id="booking-email-error"></span>
+              <span class="btn-note" id="booking-email-hint">予約確認をお送りします。宣伝メールは送りません。</span>
+            </div>
+
+            <div class="field">
+              <label for="booking-tel">電話番号<span class="req">必須</span></label>
+              <input type="tel" id="booking-tel" name="tel" required autocomplete="tel"
+                     inputmode="tel" placeholder="09012345678" aria-describedby="booking-tel-error">
+              <span class="field__error" id="booking-tel-error"></span>
+            </div>
+
+            <div class="field">
+              <label for="booking-message">相談したいこと<span class="opt">任意</span></label>
+              <textarea id="booking-message" name="message" rows="4"
+                        aria-describedby="booking-message-error booking-message-hint"></textarea>
+              <span class="field__error" id="booking-message-error"></span>
+              <span class="btn-note" id="booking-message-hint">過去に続かなかったときの状況を書いていただけると、当日の話が早く進みます。</span>
+            </div>
+
+            <div class="status" id="submit-status" role="status" aria-live="polite"></div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn" id="booking-submit">この内容で予約する</button>
+              <button type="button" class="btn btn--ghost btn--small" id="back-to-step-2">時間を選び直す</button>
+            </div>
+          </div>
+        </form>
+
+        <!-- 完了表示 -->
+        <div class="done" id="booking-done" hidden>
+          <h3 class="done__title" id="booking-done-title" tabindex="-1">ご予約を受け付けました。</h3>
+          <div class="done__body">
+            <p id="booking-done-detail"></p>
+            <p class="btn-note">確認メールをお送りしています。届かない場合は迷惑メールフォルダをご確認のうえ、お電話ください。日時の変更は前日21時まで承ります。</p>
+          </div>
+          <p class="done__id" id="booking-done-id"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= 07 FAQ ============================== -->
+  <section class="sec wrap" id="faq" aria-labelledby="faq-title">
+    <p class="sec__index" aria-hidden="true">07</p>
+    <div class="sec__body">
+      <h2 class="sec__title" id="faq-title">よくあるご質問</h2>
+      <div class="faq" id="faq-list">
+        <details>
+          <summary>運動経験がまったくありません。ついていけますか。</summary>
+          <div class="faq__body"><p>ご入会の8割が運動経験のない方です。初回は可動域と生活リズムの確認だけで終わることもあります。負荷は3回目以降から少しずつ足していきます。</p></div>
+        </details>
+        <details>
+          <summary>他の利用者と顔を合わせますか。</summary>
+          <div class="faq__body"><p>トレーニングルームは完全個室で、更衣も個室内で完結します。予約枠を90分刻みでずらしているため、入れ替わりの時間帯以外で他の方と会うことはほとんどありません。</p></div>
+        </details>
+        <details>
+          <summary>予約の変更やキャンセルはできますか。</summary>
+          <div class="faq__body"><p>前日21時までのご連絡で無料で振替できます。当日のキャンセルは1回分の消化となりますが、体調不良の場合はこの限りではありません。</p></div>
+        </details>
+        <details>
+          <summary>食事は制限されますか。</summary>
+          <div class="faq__body"><p>禁止食は設けません。食事サポートは、記録に対して選択肢を足していく形式です。外食や飲み会の予定を先に共有していただければ、その前後で調整します。</p></div>
+        </details>
+        <details>
+          <summary>途中で通えなくなった場合はどうなりますか。</summary>
+          <div class="faq__body"><p>月単位で休会できます（休会中の月会費は不要、事務手数料1,100円）。残ったセッションは有効期限内であれば再開後に消化いただけます。</p></div>
+        </details>
+        <details>
+          <summary>無料カウンセリングでは何をしますか。</summary>
+          <div class="faq__body"><p>所要60分です。これまで続かなかった状況の聞き取り、体組成の測定、20分程度の体験トレーニングを行います。その場での入会手続きは必須ではありません。<a href="#booking" data-cta="faq">予約フォームへ移動する</a></p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <dl class="site-foot__grid">
+      <div>
+        <dt>STUDIO CORE</dt>
+        <dd><address>東京都渋谷区○○ 1-2-3 コアビル 4F</address></dd>
+        <dd>JR渋谷駅 新南口から徒歩6分</dd>
+      </div>
+      <div>
+        <dt>営業時間</dt>
+        <dd class="num">10:00 – 21:00（最終開始 19:00）</dd>
+        <dd>定休日：水曜</dd>
+      </div>
+      <div>
+        <dt>お問い合わせ</dt>
+        <dd><a class="num" href="tel:0300000000">03-0000-0000</a></dd>
+        <dd>受付は営業時間内のみ</dd>
+      </div>
+      <div>
+        <dt>ご案内</dt>
+        <dd>表示価格はすべて税込です</dd>
+        <dd>本サイトは架空の店舗を題材にした制作実績です</dd>
+      </div>
+    </dl>
+    <p class="site-foot__copy">© 2026 STUDIO CORE</p>
+  </div>
+</footer>
+
+<!-- 追従CTA：ヒーローを抜けたら表示し、予約フォーム到達で隠す（IntersectionObserver 制御） -->
+<div class="sticky-cta" id="sticky-cta" inert>
+  <div class="wrap sticky-cta__inner">
+    <p class="sticky-cta__text">無料カウンセリング｜所要60分・体験トレーニング付き</p>
+    <a class="btn" href="#booking" data-cta="sticky">予約する</a>
+  </div>
+</div>
+
+<!-- Microsoft Clarity: 下のコメントを外し CLARITY_ID を config.js に設定すると有効化されます
+<script type="text/javascript">
+  (function(c,l,a,r,i,t,y){
+    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window, document, "clarity", "script", window.SC_CONFIG.CLARITY_ID);
+</script>
+-->
+
+<script src="config.js" defer></script>
+<script src="js/analytics.js" defer></script>
+<script src="js/simulator.js" defer></script>
+<script src="js/ui.js" defer></script>
+<script src="js/booking.js" defer></script>
+</body>
+</html>

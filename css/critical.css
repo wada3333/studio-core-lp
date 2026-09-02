@@ -1,0 +1,480 @@
+/* ===========================================================================
+   STUDIO CORE / critical.css
+   index.html の <style> にインライン展開する分（トークン・骨格・ファーストビュー）
+   ※ このファイルはインライン元のマスターです。編集したら index.html にも反映すること。
+   =========================================================================== */
+
+:root {
+  /* --- カラートークン（6色。ダークモード対応は不要） --- */
+  --paper: #e9eceA;
+  --panel: #f7f8f7;
+  --ink: #1b2523;
+  --muted: #4f5c5a;
+  --line: #c3cac6;
+  --accent: #2e5a50;
+
+  /* --- タイポグラフィ --- */
+  --font-sans: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", "Hiragino Sans",
+    "Yu Gothic", "Yu Gothic UI", "Noto Sans JP", Meiryo, sans-serif;
+  --font-num: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, Consolas,
+    "Courier New", monospace;
+
+  --fs-h1: clamp(1.75rem, 5.2vw, 2.875rem);
+  --fs-h2: clamp(1.3125rem, 2.6vw, 1.6875rem);
+  --fs-h3: clamp(1.0625rem, 1.4vw, 1.1875rem);
+  --fs-body: 1rem;
+  --fs-small: 0.8125rem;
+
+  /* --- レイアウト --- */
+  --rail: 148px;
+  --measure: 40rem;
+  --page-max: 68rem;
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+  --sec-space: clamp(3.5rem, 8vw, 6rem);
+}
+
+@media (max-width: 47.99em) {
+  :root {
+    --rail: 2.75rem;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: 1.95;
+  text-underline-offset: 0.2em;
+}
+
+/* 詰め組み（palt）は見出しと数値だけに掛ける。本文全体に掛けると初期レイアウトが重くなるため。 */
+h1,
+h2,
+h3,
+.faq summary,
+.receipt__amount {
+  font-feature-settings: "palt" 1;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* フォーカスリングは常に可視。outline:none は使用しない。 */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: 0;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  transform: translateY(-150%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- 数値表現（金額・時刻・番号は等幅で桁を揃える） --- */
+.num {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+/* --- ページ枠 --- */
+.wrap {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* --- ヘッダー --- */
+.site-head {
+  border-bottom: 1px solid var(--line);
+}
+
+.site-head__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.5rem;
+}
+
+.wordmark {
+  font-family: var(--font-num);
+  font-size: 0.9375rem;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.site-nav {
+  display: flex;
+  gap: clamp(0.75rem, 3vw, 1.75rem);
+  font-size: var(--fs-small);
+}
+
+.site-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  padding-block: 0.5rem;
+}
+
+.site-nav a:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+/* --- ボタン --- */
+.btn {
+  display: inline-block;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 0.9rem 1.6rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn:hover {
+  background: color-mix(in srgb, var(--accent) 84%, var(--ink));
+}
+
+.btn:disabled {
+  background: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.btn--ghost:hover {
+  background: var(--panel);
+  border-color: var(--muted);
+}
+
+.btn--small {
+  padding: 0.55rem 1rem;
+  font-size: var(--fs-small);
+}
+
+.btn-note {
+  display: block;
+  margin-top: 0.65rem;
+  font-size: var(--fs-small);
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* --- ヒーロー（背景画像の上にテキストを置く） --- */
+.hero {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(3.5rem, 10vw, 6.5rem);
+  min-height: min(78vh, 40rem);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--panel);
+}
+
+.hero__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 文字が乗る左側ほど地色を強く残し、写真が変わってもコントラスト比を保つ */
+.hero__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(233, 236, 234, 0.97) 0%,
+    rgba(233, 236, 234, 0.95) 46%,
+    rgba(233, 236, 234, 0.62) 100%
+  );
+}
+
+/* ヒーロー背景動画。js/ui.js が条件を満たしたときだけ生成して差し込む。
+   スクリム（.hero__media::after）は DOM 順で最後に描画されるため、動画の上に乗る。 */
+.hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+.hero__media.is-playing .hero__video {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__video {
+    display: none;
+  }
+}
+
+.hero__inner {
+  width: 100%;
+}
+
+.hero__title {
+  font-size: var(--fs-h1);
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  max-width: 18em;
+}
+
+.hero__lead {
+  margin-top: 1.5rem;
+  max-width: var(--measure);
+  color: var(--muted);
+}
+
+.hero__actions {
+  margin-top: 2rem;
+}
+
+
+
+
+/* --- セクション骨格（左レール + 縦断するヘアライン） --- */
+.sec {
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+  align-items: start;
+}
+
+.sec__index {
+  font-family: var(--font-num);
+  font-size: var(--fs-small);
+  color: var(--muted);
+  padding-top: calc(var(--sec-space) + 0.35rem);
+  padding-right: 1rem;
+  letter-spacing: 0.06em;
+}
+
+/* このヘアラインが共感パートから予約フォームまで途切れずに続く（本LPの主モチーフ） */
+.sec__body {
+  border-left: 1px solid var(--line);
+  padding: var(--sec-space) 0 var(--sec-space) clamp(1.25rem, 3vw, 2.25rem);
+  min-width: 0;
+}
+
+.sec__title {
+  font-size: var(--fs-h2);
+  line-height: 1.55;
+  font-weight: 600;
+  max-width: 22em;
+}
+
+.sec__lead {
+  margin-top: 1.25rem;
+  max-width: var(--measure);
+  color: var(--muted);
+}
+
+/* --- 01 共感パート：時系列の散文（箇条書きにしない） ----------------- */
+
+.timeline {
+  margin-top: 2.5rem;
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 2.5rem);
+  max-width: 44rem;
+}
+
+.timeline__item {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 0 1rem;
+}
+
+.timeline__when {
+  font-family: var(--font-num);
+  font-size: var(--fs-small);
+  color: var(--muted);
+  padding-top: 0.45rem;
+  letter-spacing: 0.02em;
+}
+
+.timeline__text {
+  margin: 0;
+}
+
+.empathy__close {
+  margin-top: clamp(2.5rem, 5vw, 3.25rem);
+  max-width: 38rem;
+  font-size: var(--fs-h3);
+  line-height: 1.85;
+}
+
+@media (max-width: 40em) {
+  .timeline__item {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .timeline__when {
+    padding-top: 0;
+  }
+}
+
+/* --- 画面外セクションの初期描画を省く ------------------------------------
+   非同期で届く main.css の適用時にページ全体を組み直すコストを避けるため、
+   ファーストビュー外のセクションは表示領域に近づくまでレイアウトしない。
+   contain-intrinsic-size は実測値（412px幅／1280px幅の実高さ）を入れており、
+   スクロール位置のずれを最小限にしている。 */
+#empathy,
+#reasons,
+#pricing,
+#trainers,
+#voices,
+#booking,
+#faq,
+.site-foot {
+  content-visibility: auto;
+}
+
+#empathy { contain-intrinsic-size: auto 1050px; }
+#reasons { contain-intrinsic-size: auto 1950px; }
+#pricing { contain-intrinsic-size: auto 1650px; }
+#trainers { contain-intrinsic-size: auto 1100px; }
+#voices { contain-intrinsic-size: auto 900px; }
+#booking { contain-intrinsic-size: auto 560px; }
+#faq { contain-intrinsic-size: auto 630px; }
+.site-foot { contain-intrinsic-size: auto 450px; }
+
+/* --- 追従CTA（丸ピルではなく細い一本バー） --- */
+.sticky-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background: var(--ink);
+  color: var(--paper);
+  border-top: 1px solid var(--ink);
+  transform: translateY(110%);
+  transition: transform 0.28s ease;
+  will-change: transform;
+}
+
+.sticky-cta.is-visible {
+  transform: translateY(0);
+}
+
+.sticky-cta__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.7rem;
+}
+
+.sticky-cta__text {
+  font-size: var(--fs-small);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.sticky-cta .btn {
+  flex: none;
+}
+
+.sticky-cta :focus-visible {
+  outline-color: var(--paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

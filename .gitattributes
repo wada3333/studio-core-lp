@@ -1,0 +1,7 @@
+# 改行コードは LF に統一する
+* text=auto eol=lf
+
+# バイナリ
+*.webp binary
+*.mp4 binary
+*.svg text eol=lf
