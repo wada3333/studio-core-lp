@@ -269,23 +269,16 @@ textarea {
   object-position: 8% 50%;
 }
 
-/* 文字の背後だけを覆うスクリム。
-   数値は実測（ヘッドレスChromeで文字の行ボックス上のピクセルを採取し、
-   文字色とのコントラスト比を算出）で決めており、いずれの幅でも 4.5:1 以上。 */
+/* 画像全体にかける薄いオーバーレイ。写真の階調を残す役割だけを持たせ、
+   文字の可読性はテキストブロック背後の局所スクリム（.hero__inner::before）で担保する。 */
 .hero__media::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    100deg,
-    rgba(233, 236, 234, 0.95) 0%,
-    rgba(233, 236, 234, 0.93) 46%,
-    rgba(233, 236, 234, 0.9) 100%
-  );
+  background: rgba(233, 236, 234, 0.55);
 }
 
-/* 横幅に余裕がある画面では、テキスト列より右をほぼ素通しにして写真を見せる。
-   1200px 未満では本文が右端近くまで伸びるため、上の均一なスクリムを使う。 */
+/* 横幅に余裕がある画面では、被写体のある右側をさらに素通しにする */
 @media (min-width: 75em) {
   .hero__media img,
   .hero__video {
@@ -295,16 +288,42 @@ textarea {
   .hero__media::after {
     background: linear-gradient(
       100deg,
-      rgba(233, 236, 234, 0.86) 0%,
-      rgba(233, 236, 234, 0.82) 45%,
-      rgba(233, 236, 234, 0.55) 68%,
-      rgba(233, 236, 234, 0.1) 100%
+      rgba(233, 236, 234, 0.55) 0%,
+      rgba(233, 236, 234, 0.5) 48%,
+      rgba(233, 236, 234, 0.3) 72%,
+      rgba(233, 236, 234, 0.06) 100%
     );
   }
 }
 
 .hero__inner {
+  position: relative;
+  z-index: 1;
   width: 100%;
+}
+
+/* テキストブロックの背後だけに敷く局所スクリム。
+   ・左は画面外まで伸ばし、右は文字列の外側で 0 に落とす
+   ・上下はマスクで消す
+   いずれの辺にも境界が出ないため、パネルを重ねたようには見えない。
+   濃度は実測（文字の行ボックス上のピクセルを採取してコントラスト比を算出）で決めている。 */
+.hero__inner::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-block: -3rem;
+  left: -50vw;
+  width: calc(50vw + var(--gutter) + 58rem);
+  pointer-events: none;
+  background: linear-gradient(
+    to left,
+    rgba(233, 236, 234, 0) 0,
+    rgba(233, 236, 234, 0.55) 8rem,
+    rgba(233, 236, 234, 0.82) 14rem,
+    rgba(233, 236, 234, 0.82) 100%
+  );
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 3rem, #000 calc(100% - 3rem), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 3rem, #000 calc(100% - 3rem), transparent 100%);
 }
 
 .hero__title {
