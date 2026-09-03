@@ -332,19 +332,6 @@ textarea {
   width: min(100%, 41rem);
 }
 
-/* ヒーローだけ白抜き。以降のセクションの文字色は変更しない。 */
-.hero__title {
-  color: #fff;
-}
-
-.hero__lead {
-  color: rgba(255, 255, 255, 0.88);
-}
-
-.hero__actions .btn-note {
-  color: rgba(255, 255, 255, 0.8);
-}
-
 /* 暗いオーバーレイ上でも輪郭が分かるよう、CTAに白のヘアラインと影を足す */
 .hero .btn {
   border-color: rgba(255, 255, 255, 0.7);
@@ -362,12 +349,25 @@ textarea {
 .hero__lead {
   margin-top: 1.5rem;
   max-width: var(--measure);
-  color: var(--muted);
 }
 
 .hero__actions {
   margin-top: 2rem;
 }
+
+/* ヒーローだけ白抜き。以降のセクションの文字色は変更しない。 */
+.hero__title {
+  color: #fff;
+}
+
+.hero__lead {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.hero__actions .btn-note {
+  color: rgba(255, 255, 255, 0.8);
+}
+
 
 
 
