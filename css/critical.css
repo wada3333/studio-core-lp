@@ -293,7 +293,7 @@ textarea {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(233, 236, 234, 0.55);
+  background: rgba(233, 236, 234, 0.3);
 }
 
 /* 横幅に余裕がある画面では、被写体のある右側をさらに素通しにする */
@@ -306,42 +306,61 @@ textarea {
   .hero__media::after {
     background: linear-gradient(
       100deg,
-      rgba(233, 236, 234, 0.55) 0%,
-      rgba(233, 236, 234, 0.5) 48%,
-      rgba(233, 236, 234, 0.3) 72%,
-      rgba(233, 236, 234, 0.06) 100%
+      rgba(233, 236, 234, 0.3) 0%,
+      rgba(233, 236, 234, 0.28) 48%,
+      rgba(233, 236, 234, 0.18) 72%,
+      rgba(233, 236, 234, 0.04) 100%
     );
   }
 }
 
 .hero__inner {
-  position: relative;
-  z-index: 1;
   width: 100%;
 }
 
-/* テキストブロックの背後だけに敷く局所スクリム。
-   ・左は画面外まで伸ばし、右は文字列の外側で 0 に落とす
-   ・上下はマスクで消す
-   いずれの辺にも境界が出ないため、パネルを重ねたようには見えない。
-   濃度は実測（文字の行ボックス上のピクセルを採取してコントラスト比を算出）で決めている。 */
-.hero__inner::before {
+/* 局所スクリムをテキストの実幅に合わせるためのラッパー。
+   本文の max-width（40rem）に合わせて 41rem で止めており、
+   この指定で文字の折り返し位置は変わらない。 */
+.hero__copy {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 41rem);
+}
+
+/* テキストブロックの実幅 + 左右32px だけに敷く薄いスクリム。
+   最大不透明度 0.45。四辺をマスクでぼかすので境界は出ない。
+   不足分は文字側の text-shadow で補っている。 */
+.hero__copy::before {
   content: "";
   position: absolute;
   z-index: -1;
-  inset-block: -3rem;
-  left: -50vw;
-  width: calc(50vw + var(--gutter) + 58rem);
+  inset: -1.25rem -2rem;
   pointer-events: none;
-  background: linear-gradient(
-    to left,
-    rgba(233, 236, 234, 0) 0,
-    rgba(233, 236, 234, 0.55) 8rem,
-    rgba(233, 236, 234, 0.82) 14rem,
-    rgba(233, 236, 234, 0.82) 100%
-  );
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 3rem, #000 calc(100% - 3rem), transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 3rem, #000 calc(100% - 3rem), transparent 100%);
+  background: rgba(233, 236, 234, 0.45);
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 2rem, #000 calc(100% - 2rem), transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 1.25rem, #000 calc(100% - 1.25rem), transparent 100%);
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 2rem, #000 calc(100% - 2rem), transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 1.25rem, #000 calc(100% - 1.25rem), transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/* 写真の上に乗る文字は本文・注記も --ink にする。
+   文字を濃くするほどスクリムを薄くでき、背景がよく見える。
+   階層は文字サイズとウェイトで付けている。 */
+.hero__lead,
+.hero__actions .btn-note {
+  color: var(--ink);
+}
+
+/* 背景写真を見せたまま可読性を上げるための白いハロー。
+   スクリムを濃くする代わりに文字の周囲だけを持ち上げる。 */
+.hero__title,
+.hero__lead,
+.hero__actions .btn-note {
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
 }
 
 .hero__title {
