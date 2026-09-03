@@ -1,5 +1,7 @@
 # STUDIO CORE ランディングページ
 
+**公開ページ：<https://wada3333.github.io/studio-core-lp/>**
+
 架空のパーソナルジム「STUDIO CORE」のLP制作実績です。
 フレームワーク・外部ライブラリを一切使わず、HTML / CSS / バニラJavaScript のみで実装しています。
 
