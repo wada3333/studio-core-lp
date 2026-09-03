@@ -38,69 +38,56 @@ figcaption {
   line-height: 1.7;
 }
 
-/* --- 02 選ばれる理由：カードを使わず幅と字下げだけで階層を作る ------- */
+/* --- 02 選ばれる理由 ---------------------------------------------------
+   各項目は「番号 → 見出し → 本文 → 画像」の1ブロック。
+   ブロック内の全要素は左端を揃え、本文と画像は同じ計測幅（65ch）に収める。
+   余白は 見出し→本文 < 本文→画像 < ブロック間 の順に広くしている。 */
 
 .reasons {
-  margin-top: 2.75rem;
+  --reason-measure: 65ch;
+  margin-top: clamp(2.5rem, 5vw, 3.25rem);
   display: grid;
-  gap: clamp(3rem, 7vw, 4.5rem);
+  gap: clamp(4rem, 9vw, 6.5rem); /* ブロック間（最大の余白） */
+}
+
+.reason {
+  max-width: var(--reason-measure);
 }
 
 .reason__no {
   font-family: var(--font-num);
   font-size: var(--fs-small);
+  letter-spacing: 0.08em;
   color: var(--muted);
 }
 
+/* 上限は指定どおり 1.5rem。狭い画面では 1.25rem まで落としている。
+   固定 1.5rem にすると、375px でセクション見出し（--fs-h2 = 21px）を
+   項目見出し（24px）が上回り、階層が逆転するため。 */
 .reason__title {
-  margin-top: 0.35rem;
-  font-size: var(--fs-h3);
+  margin-top: 0.5rem;
+  font-size: clamp(1.25rem, 1.9vw, 1.5rem);
+  line-height: 1.55;
   font-weight: 600;
 }
 
 .reason__text {
-  margin-top: 0.85rem;
-  max-width: 34rem;
+  margin-top: 1rem; /* 見出し→本文（最小の余白） */
+  max-width: var(--reason-measure);
+  line-height: 1.8;
 }
 
 .reason__media {
-  margin-top: 1.5rem;
+  margin-top: 2.25rem; /* 本文→画像（中間の余白） */
+  max-width: var(--reason-measure);
 }
 
-/* 1つ目：最も広く */
-.reason--wide .reason__media {
-  max-width: 36rem;
-}
-
-/* 2つ目：字下げして中幅 */
-.reason--inset {
-  margin-left: clamp(0rem, 6vw, 5rem);
-  max-width: 30rem;
-}
-
-
-/* 3つ目：テキスト主・画像は小さく横に置く */
-.reason--text {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 13rem;
-  gap: clamp(1.25rem, 4vw, 2.5rem);
-  align-items: start;
-}
-
-.reason--text .reason__media {
-  margin-top: 0;
-}
-
-
-@media (max-width: 44em) {
-  .reason--text {
-    grid-template-columns: 1fr;
-  }
-
-  .reason--text .reason__media {
-    max-width: 16rem;
-    margin-top: 1.25rem;
-  }
+/* 画像は全項目で同じ幅・同じ左端・同じ縦横比。実ファイルが 1200x896 のため
+   4:3 を採用しており、cover によるトリミングはごく僅かで済む。 */
+.reason__media img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
 }
 
 /* --- 03 料金 --------------------------------------------------------- */
