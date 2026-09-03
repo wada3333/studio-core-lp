@@ -287,16 +287,24 @@ textarea {
   object-position: 10% 50%;
 }
 
-/* 画像全体にかける薄いオーバーレイ。写真の階調を残す役割だけを持たせ、
-   文字の可読性はテキストブロック背後の局所スクリム（.hero__inner::before）で担保する。 */
+/* 背景画像の上に重ねる暗いオーバーレイ。
+   スマホはテキストが下寄せで全幅に広がるため縦方向（下を濃く）を主とし、
+   左を濃くする横方向を重ねている。1200px以上は左→右の一方向。
+   数値は実測（文字の行ボックス上のピクセルから、半透明文字の実効色との比を算出）で決定。 */
 .hero__media::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(233, 236, 234, 0.3);
+  background:
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.8) 0%,
+      rgba(0, 0, 0, 0.68) 45%,
+      rgba(0, 0, 0, 0.12) 100%
+    ),
+    linear-gradient(to right, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0));
 }
 
-/* 横幅に余裕がある画面では、被写体のある右側をさらに素通しにする */
 @media (min-width: 75em) {
   .hero__media img,
   .hero__video {
@@ -305,11 +313,10 @@ textarea {
 
   .hero__media::after {
     background: linear-gradient(
-      100deg,
-      rgba(233, 236, 234, 0.3) 0%,
-      rgba(233, 236, 234, 0.28) 48%,
-      rgba(233, 236, 234, 0.18) 72%,
-      rgba(233, 236, 234, 0.04) 100%
+      to right,
+      rgba(0, 0, 0, 0.74) 0%,
+      rgba(0, 0, 0, 0.66) 45%,
+      rgba(0, 0, 0, 0.28) 100%
     );
   }
 }
@@ -318,49 +325,30 @@ textarea {
   width: 100%;
 }
 
-/* 局所スクリムをテキストの実幅に合わせるためのラッパー。
-   本文の max-width（40rem）に合わせて 41rem で止めており、
-   この指定で文字の折り返し位置は変わらない。 */
+/* テキストはオーバーレイより上に置く */
 .hero__copy {
   position: relative;
   z-index: 1;
   width: min(100%, 41rem);
 }
 
-/* テキストブロックの実幅 + 左右32px だけに敷く薄いスクリム。
-   最大不透明度 0.45。四辺をマスクでぼかすので境界は出ない。
-   不足分は文字側の text-shadow で補っている。 */
-.hero__copy::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset: -1.25rem -2rem;
-  pointer-events: none;
-  background: rgba(233, 236, 234, 0.45);
-  -webkit-mask-image:
-    linear-gradient(to right, transparent 0, #000 2rem, #000 calc(100% - 2rem), transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 1.25rem, #000 calc(100% - 1.25rem), transparent 100%);
-  mask-image:
-    linear-gradient(to right, transparent 0, #000 2rem, #000 calc(100% - 2rem), transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 1.25rem, #000 calc(100% - 1.25rem), transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-composite: intersect;
+/* ヒーローだけ白抜き。以降のセクションの文字色は変更しない。 */
+.hero__title {
+  color: #fff;
 }
 
-/* 写真の上に乗る文字は本文・注記も --ink にする。
-   文字を濃くするほどスクリムを薄くでき、背景がよく見える。
-   階層は文字サイズとウェイトで付けている。 */
-.hero__lead,
-.hero__actions .btn-note {
-  color: var(--ink);
+.hero__lead {
+  color: rgba(255, 255, 255, 0.88);
 }
 
-/* 背景写真を見せたまま可読性を上げるための白いハロー。
-   スクリムを濃くする代わりに文字の周囲だけを持ち上げる。 */
-.hero__title,
-.hero__lead,
 .hero__actions .btn-note {
-  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 暗いオーバーレイ上でも輪郭が分かるよう、CTAに白のヘアラインと影を足す */
+.hero .btn {
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.3);
 }
 
 .hero__title {
