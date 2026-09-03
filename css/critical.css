@@ -242,10 +242,28 @@ textarea {
   position: relative;
   isolation: isolate;
   padding-block: clamp(3.5rem, 10vw, 6.5rem);
-  min-height: min(78vh, 40rem);
   display: flex;
   align-items: center;
   overflow: hidden;
+  /* svh はアドレスバーの開閉で値が変わらないため、dvh と違ってレイアウトが動かない。
+     未対応ブラウザ向けに vh を先に置いている。 */
+  min-height: min(78vh, 40rem);
+  min-height: min(78svh, 40rem);
+}
+
+/* スマホ・タブレットでは画面高に追従させ、テキストを下寄せにして
+   写真の余白（床側）と重ねる。上部の窓とラックが画面内に収まる。 */
+@media (max-width: 74.99em) {
+  .hero {
+    /* 88svh で画面高に追従させつつ、155vw で上限を掛けている。
+       cover の可視幅は「画像の縦横比 ÷ 枠の縦横比」で決まり、枠が高いほど横が切れる。
+       155vw を上限にすると可視幅は常に元画像の約36%となり、
+       ラック（元画像の 3〜38% に位置）が画面幅に収まる。 */
+    min-height: min(88vh, 155vw);
+    min-height: min(88svh, 155vw);
+    align-items: flex-end;
+    padding-block: clamp(3rem, 8vw, 4.5rem) clamp(2.5rem, 7vw, 4rem);
+  }
 }
 
 .hero__media {
@@ -266,7 +284,7 @@ textarea {
 .hero__media img,
 .hero__video {
   transform: scaleX(-1);
-  object-position: 8% 50%;
+  object-position: 10% 50%;
 }
 
 /* 画像全体にかける薄いオーバーレイ。写真の階調を残す役割だけを持たせ、
