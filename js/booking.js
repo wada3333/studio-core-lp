@@ -38,36 +38,27 @@
      - サイトキーは config.js の TURNSTILE_SITE_KEY（index.html の
        data-sitekey と同じ値）。シークレットキーはフロントに一切置かない。
      - ウィジェットは index.html に静的に配置し、Turnstile のスクリプトが
-       自動描画する（暗黙的レンダリング）。
+       自動描画する（暗黙的レンダリング）。ウィジェットには localhost /
+       127.0.0.1 も許可ホストとして登録済みのため、ローカルでも実チャレンジが
+       解決しトークンが取得できる（バイパスは設けていない）。
      - コールバック（data-callback 等）は window 直下の関数名で参照される。
        この関数はスクリプト評価時に同期的に定義するため、Turnstile の
        スクリプトが <head> で async 実行されても、実際にチャレンジが完了して
        コールバックが呼ばれる（ネットワーク往復を伴うため必ず後になる）
        タイミングには確実に定義済みになる。
-     - GAS_URL が未設定（モック動作）かつ localhost 等で開いている場合は、
-       実際の Cloudflare ドメイン検証が通らないため、ローカル確認用の
-       ダミートークンで送信ボタンの活性化だけ再現する。本番ドメイン
-       （GAS_URL 設定時）では常に実トークンが必須で、この抜け道は使われない。
      ==================================================================== */
-  var isLocalDev = window.location.protocol === 'file:' ||
-    /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
-
-  function initialTurnstileToken() {
-    return (!config.GAS_URL && isLocalDev) ? 'local-dev-bypass' : '';
-  }
-
   window.scHandleTurnstileToken = function (token) {
     state.turnstileToken = token || '';
     if (dom.submit) renderSubmit();
   };
 
   window.scHandleTurnstileExpired = function () {
-    state.turnstileToken = initialTurnstileToken();
+    state.turnstileToken = '';
     if (dom.submit) renderSubmit();
   };
 
   window.scHandleTurnstileError = function () {
-    state.turnstileToken = initialTurnstileToken();
+    state.turnstileToken = '';
     if (dom.submit) renderSubmit();
   };
 
@@ -76,7 +67,7 @@
     if (window.turnstile && typeof window.turnstile.reset === 'function') {
       try { window.turnstile.reset(); } catch (e) { /* ウィジェット未初期化時は無視 */ }
     }
-    state.turnstileToken = initialTurnstileToken();
+    state.turnstileToken = '';
     if (dom.submit) renderSubmit();
   }
 
@@ -96,7 +87,7 @@
     reservationId: '',
     token: createToken(),
     /** Cloudflare Turnstile のレスポンストークン。空のあいだは送信ボタンを無効化する。 */
-    turnstileToken: initialTurnstileToken()
+    turnstileToken: ''
   };
 
   var dom = {};
@@ -785,11 +776,9 @@
       });
     });
 
-    // 初期状態（STEP1 のみ表示・エラーなし）は index.html の初期マークアップと
-    // 一致しているため、ここでの render() は不要。読み込み時の余計な再レイアウトを避ける。
-    // ただし送信ボタンの disabled は「Turnstile トークン未取得」を表す実質的な状態なので、
-    // ローカル確認用バイパスが効いている場合に解除できるよう renderSubmit() だけ呼ぶ。
-    renderSubmit();
+    // 初期状態（STEP1 のみ表示・エラーなし、送信ボタンは disabled）は index.html の
+    // 初期マークアップと一致しているため、ここでの render() は不要。
+    // 読み込み時の余計な再レイアウトを避ける。
   }
 
   if (document.readyState === 'loading') {

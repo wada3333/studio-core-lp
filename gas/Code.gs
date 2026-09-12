@@ -22,8 +22,9 @@
  *   7. 同一枠の二重予約                      → { "status": "conflict" } を返す
  * 上記 1〜6 のどれで拒否されたかは Logger.log にのみ残し、レスポンスには出さない。
  *
- * メール通知は即時送信をやめ、時間主導トリガーで notifyPendingReservations() を
- * 1日1回実行し、未通知分をまとめて1通で送る方式にしている。
+ * メール通知は2系統。予約者本人へは appendReservation 直後に確認メールを即時送信し、
+ * 管理者へは即時送信せず、時間主導トリガーで notifyPendingReservations() を1日1回実行して
+ * 未通知分をまとめて1通で送る（MailApp の1日あたり送信上限を踏まえた設計。下記参照）。
  *
  * セットアップ手順は README.md「GAS側のセットアップ」を参照。
  */
@@ -65,8 +66,12 @@ var CONFIG = {
   MIN_ELAPSED_MS: 3000,
   MAX_ELAPSED_MS: 3600000,
 
-  /** 1日あたりの受付上限。到達したらその日は受付を停止し、管理者へ1回だけ通知する。 */
-  DAILY_LIMIT: 100
+  /**
+   * 1日あたりの受付上限。到達したらその日は受付を停止し、管理者へ1回だけ通知する。
+   * MailApp（Gmail）の送信上限は1日100通。顧客への即時確認メール（最大でこの件数分）＋
+   * 管理者へのまとめ通知1通で、上限の半分（50通）に収まるようにしている。
+   */
+  DAILY_LIMIT: 50
 };
 
 var HEADERS = ['受付日時', '予約番号', '希望日', '希望時間', '氏名', 'メール', '電話', '相談内容', 'token', 'ステータス', '通知済み'];
@@ -155,6 +160,7 @@ function doPost(e) {
 
     var reservationId = buildReservationId(input.date, input.time);
     appendReservation(reservationId, input);
+    sendConfirmationEmail(reservationId, input);
 
     return jsonResponse({ status: 'success', reservationId: reservationId });
   } catch (err) {
@@ -349,16 +355,48 @@ function buildReservationId(date, time) {
   return 'R-' + date.replace(/-/g, '') + '-' + time.replace(':', '');
 }
 
+/**
+ * 予約者本人へ確認メールを即時送信する（管理者への通知は別途 notifyPendingReservations で
+ * まとめて送る。こちらは顧客体験のため即時にしている）。
+ * 送信に失敗しても予約自体は成立しているので、例外は投げずログにのみ残す
+ * （ここで例外を投げると、doPost の外側 catch が success を error にすり替えてしまう）。
+ */
+function sendConfirmationEmail(reservationId, input) {
+  var subject = '【STUDIO CORE】無料カウンセリングのご予約を承りました';
+  var body = [
+    input.name + ' 様',
+    '',
+    '無料カウンセリングのご予約を承りました。',
+    '',
+    '予約番号：' + reservationId,
+    '日　　時：' + input.date + ' ' + input.time + '〜（60分）',
+    '場　　所：東京都渋谷区○○ 1-2-3 コアビル 4F',
+    '',
+    '持ち物は不要です。動きやすい服装でお越しください。',
+    '日時の変更は前日21時まで承ります。',
+    '',
+    'STUDIO CORE'
+  ].join('\n');
+
+  try {
+    MailApp.sendEmail(input.email, subject, body);
+  } catch (err) {
+    Logger.log('[mail] 確認メール送信に失敗（' + reservationId + '）: ' + err);
+  }
+}
+
 /* =========================================================================
-   通知メール（1日1回の digest）
+   管理者への通知メール（1日1回の digest）
    ---------------------------------------------------------------------
-   予約ごとの即時メールは廃止した。理由は主に2つ:
-     - スパムがすり抜けた場合に大量の即時メールが飛ぶのを避ける
-     - MailApp の1日あたり送信数クォータを消費しにくくする
-   代わりにシートの「通知済み」列を見て、未通知の行だけをまとめて
-   1通のメールで送る。時間主導トリガーで1日1回実行する想定
-   （トリガーの設定手順は README.md を参照。installNotifyTrigger() で
-   コードから設定することもできる）。
+   予約者本人への確認メールは sendConfirmationEmail() で即時送信するが、
+   管理者への通知はまとめて1日1回にしている。理由は主に2つ:
+     - スパムがすり抜けた場合に大量の即時メールが管理者に飛ぶのを避ける
+     - MailApp の1日あたり送信数クォータ（Gmailは100通）を圧迫しない。
+       DAILY_LIMIT（顧客への即時確認メールの上限）を50件にしているのは、
+       これに管理者へのまとめ通知1通を足しても上限の半分に収まるようにするため
+   シートの「通知済み」列を見て、未通知の行だけをまとめて1通のメールで送る。
+   時間主導トリガーで1日1回実行する想定（トリガーの設定手順は README.md を参照。
+   installNotifyTrigger() でコードから設定することもできる）。
    ========================================================================= */
 
 /**

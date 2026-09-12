@@ -2,7 +2,10 @@
  * E2E 動作確認スクリプト（ヘッドレス Chrome + CDP。外部依存なし）
  * ---------------------------------------------------------------------------
  *   1) 別ターミナルで  python -m http.server 8123
- *   2) node tools/e2e-check.mjs [http://127.0.0.1:8123]
+ *   2) node tools/e2e-check.mjs [http://localhost:8123]
+ *
+ * デフォルトは 127.0.0.1 ではなく localhost。Cloudflare Turnstile の
+ * ウィジェットは localhost を許可ホストとして登録しているため。
  *
  * 予約フォームの3STEP・エラー分岐・二重送信防止・追従CTA・スクロール計測を
  * 実ブラウザ上で通しで検証し、結果を JSON で出力します。
@@ -12,7 +15,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const BASE = process.argv[2] || 'http://127.0.0.1:8123';
+const BASE = process.argv[2] || 'http://localhost:8123';
 const PORT = 9222;
 const CHROME = process.env.CHROME_PATH ||
   'C:/Program Files/Google/Chrome/Application/chrome.exe';
@@ -35,6 +38,16 @@ function computeTestDate(daysAhead) {
 
 const TEST_DATE = computeTestDate(7);
 const TEST_DATE_2 = computeTestDate(8);
+
+/**
+ * 実 Turnstile のトークン取得を待つ上限（ミリ秒）。
+ * ローカル用バイパスを廃止したため、ここでは実チャレンジの完了を待つ。
+ * ヘッドレスブラウザは Cloudflare の bot 検知に引っかかり、チャレンジが
+ * 完了しない（＝トークンが永遠に来ない）ことがある。これはアプリのバグではなく
+ * Turnstile の仕様上の制約なので、待っても来ない場合は submit せず
+ * turnstileTokenObtained:false として結果に明示する。
+ */
+const TURNSTILE_WAIT_MS = 8000;
 
 const profile = mkdtempSync(join(tmpdir(), 'sc-e2e-'));
 const chrome = spawn(CHROME, [
@@ -164,22 +177,40 @@ try {
       document.getElementById('booking-email').value = 'taro@example.com';
       document.getElementById('booking-tel').value = '090-1234-5678';
       const form = document.getElementById('booking-form');
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-      await s(60);
-      const submitting = {
-        disabled: document.getElementById('booking-submit').disabled,
-        label: document.getElementById('booking-submit').textContent
-      };
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); // 二重送信
-      await s(1200);
+
+      // 実 Turnstile を使うようになったため（バイパスなし）、ヘッドレスブラウザでは
+      // Cloudflare の bot 検知でチャレンジが完了しないことがある（＝トークンが来ない）。
+      // その場合は無理に submit せず、はっきり「未取得」として報告する。
+      let turnstileTokenObtained = false;
+      for (let waited = 0; waited < ${TURNSTILE_WAIT_MS}; waited += 500) {
+        if (!document.getElementById('booking-submit').disabled) { turnstileTokenObtained = true; break; }
+        await s(500);
+      }
+
+      let submitting = null, submitEvents = 0, steps = [];
+      let done = false, reservationId = '', focusAfterDone = '', storedBookings = [];
+
+      if (turnstileTokenObtained) {
+        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        await s(60);
+        submitting = {
+          disabled: document.getElementById('booking-submit').disabled,
+          label: document.getElementById('booking-submit').textContent
+        };
+        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); // 二重送信
+        await s(1200);
+        done = !document.getElementById('booking-done').hidden;
+        reservationId = document.getElementById('booking-done-id').textContent.trim();
+        focusAfterDone = document.activeElement.id;
+        storedBookings = JSON.parse(sessionStorage.getItem('sc_mock_bookings') || '[]');
+        submitEvents = window.dataLayer.filter(e => e.event === 'form_submit').length;
+        steps = window.dataLayer.filter(e => e.event === 'form_step').map(e => e.step);
+      }
+
       return {
+        turnstileTokenObtained,
         loading, slots, focusAfterStep2, focusAfterStep3, submitting,
-        done: !document.getElementById('booking-done').hidden,
-        reservationId: document.getElementById('booking-done-id').textContent.trim(),
-        focusAfterDone: document.activeElement.id,
-        storedBookings: JSON.parse(sessionStorage.getItem('sc_mock_bookings') || '[]'),
-        submitEvents: window.dataLayer.filter(e => e.event === 'form_submit').length,
-        steps: window.dataLayer.filter(e => e.event === 'form_step').map(e => e.step)
+        done, reservationId, focusAfterDone, storedBookings, submitEvents, steps
       };
     `);
     await closePage(page);
@@ -234,9 +265,20 @@ try {
         document.getElementById('booking-name').value = 'テスト 花子';
         document.getElementById('booking-email').value = 'hanako@example.com';
         document.getElementById('booking-tel').value = '08012345678';
+
+        let turnstileTokenObtained = false;
+        for (let waited = 0; waited < ${TURNSTILE_WAIT_MS}; waited += 500) {
+          if (!document.getElementById('booking-submit').disabled) { turnstileTokenObtained = true; break; }
+          await s(500);
+        }
+        if (!turnstileTokenObtained) {
+          return { turnstileTokenObtained: false, status: '', className: '', errorTypes: [] };
+        }
+
         document.getElementById('booking-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
         await s(1300);
         return {
+          turnstileTokenObtained: true,
           status: document.getElementById('submit-status').textContent.trim(),
           className: document.getElementById('submit-status').className,
           errorTypes: window.dataLayer.filter(e => e.event === 'form_error').map(e => e.type)
@@ -290,20 +332,36 @@ try {
     await key(session, TAB);
     await session.send('Input.insertText', { text: '09011112222' });
     const beforeSubmit = await focusOf();
-    // 送信ボタンまでの間に textarea・Cloudflare Turnstile ウィジェットが挟まる。
-    // ウィジェットの内部構造（フォーカス可能な要素の数）は描画状態に依存するため、
-    // 固定回数の Tab ではなく「送信ボタンに着くまでタブする」方式にしている。
-    let reachedSubmit = false;
-    const submitTrail = [];
-    for (let i = 0; i < 8 && !reachedSubmit; i++) {
-      await key(session, TAB);
-      const id = await focusOf();
-      submitTrail.push(id);
-      reachedSubmit = id === 'booking-submit';
+
+    // 送信ボタンは Turnstile のトークンを取得するまで disabled で、
+    // disabled な要素は Tab 移動の対象から外れる（＝そもそも辿り着けない）。
+    // 実チャレンジの完了を待ってからでないと、次の Tab ループが成立しない。
+    const turnstileTokenObtained = await session.evaluate(`
+      const s = ms => new Promise(r => setTimeout(r, ms));
+      let obtained = false;
+      for (let waited = 0; waited < ${TURNSTILE_WAIT_MS}; waited += 500) {
+        if (!document.getElementById('booking-submit').disabled) { obtained = true; break; }
+        await s(500);
+      }
+      return obtained;
+    `);
+
+    let onSubmit = '', submitTrail = [];
+    if (turnstileTokenObtained) {
+      // 送信ボタンまでの間に textarea・Cloudflare Turnstile ウィジェットが挟まる。
+      // ウィジェットの内部構造（フォーカス可能な要素の数）は描画状態に依存するため、
+      // 固定回数の Tab ではなく「送信ボタンに着くまでタブする」方式にしている。
+      let reachedSubmit = false;
+      for (let i = 0; i < 8 && !reachedSubmit; i++) {
+        await key(session, TAB);
+        const id = await focusOf();
+        submitTrail.push(id);
+        reachedSubmit = id === 'booking-submit';
+      }
+      onSubmit = await focusOf();
+      await key(session, ENTER);
+      await sleep(1600);
     }
-    const onSubmit = await focusOf();
-    await key(session, ENTER);
-    await sleep(1600);
 
     results.keyboardOnly = await session.evaluate(`
       return {
@@ -316,6 +374,7 @@ try {
         })()
       };
     `);
+    results.keyboardOnly.turnstileTokenObtained = turnstileTokenObtained;
     results.keyboardOnly.trail = trail;
     results.keyboardOnly.checkpoints = { afterDate, onRadio, onNext, afterNext, beforeSubmit, onSubmit };
     results.keyboardOnly.submitTrail = submitTrail;
