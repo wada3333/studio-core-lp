@@ -3,11 +3,12 @@
 **公開ページ：<https://wada3333.github.io/studio-core-lp/>**
 
 架空のパーソナルジム「STUDIO CORE」のLP制作実績です。
-フレームワーク・外部ライブラリを一切使わず、HTML / CSS / バニラJavaScript のみで実装しています。
+フレームワークは使わず、HTML / CSS / バニラJavaScript を中心に実装しています
+（予約フォームのスパム対策のみ、外部サービスとして Cloudflare Turnstile を利用）。
 
 重点を置いたのは次の3点です。
 
-1. **予約フォームの空き枠連携** — 非同期通信・状態の一元管理・エラー分岐・二重送信防止
+1. **予約フォームの空き枠連携** — 非同期通信・状態の一元管理・エラー分岐・二重送信防止・スパム対策（Turnstile／ハニーポット／日次上限）
 2. **Lighthouse 4カテゴリすべて 100**（モバイル／デスクトップ）
 3. **計測イベントの自前設計** — CTAクリック・スクロール到達率・フォーム離脱の追跡
 
@@ -73,6 +74,18 @@ node tools/serve.mjs 8123
 - **フォーカス管理** — STEP遷移時に新しく現れた見出しへフォーカスを移動。完了時は完了見出しへ
 - **状態の一元管理** — `step / selectedDate / selectedTime / slots / loading / error / fieldErrors / submitted` を単一オブジェクトで保持し、DOM反映は `render()` に集約
 - 日付を選び直すと進行中のリクエストを `abort()` し、後発の応答だけを採用（レースコンディション対策）
+
+### スパム対策
+
+サーバー側の GAS が最終防衛線（フロント側のチェックはユーザー体験のためのもので、
+直接 POST を叩く相手には効かない前提）。
+
+- **Cloudflare Turnstile** — 送信ボタン直前にウィジェットを設置し、トークン未取得のあいだは送信ボタンを `disabled` にする。GAS 側で `siteverify` API に投げて検証し、`hostname` が本番ドメインと一致するかまで確認する
+- **ハニーポット** — 見えない入力欄 `company_url` を用意し、値が入っていたら GAS 側で破棄する。`display:none` ではなく画面外へ飛ばす方式（「非表示要素は無視する」ボット対策への対策）
+- **経過時間チェック** — ページ表示からの経過ミリ秒を送信し、3秒未満（bot）・1時間超（リプレイ）を GAS 側で弾く
+- **日次受付上限** — 1日100件を超えたら受付を停止し、上限到達を検知した最初の1回だけ管理者へメール通知
+- **判定理由を隠す** — スパム判定・入力不備のどれで拒否されたかに関わらず、レスポンスは常に同じ汎用メッセージ。具体的な理由は GAS の実行ログにのみ残す（攻撃者に検証ロジックを教えない）
+- GAS_URL が未設定（ローカルでのモック動作）かつ `localhost` / `127.0.0.1` で開いている場合に限り、Cloudflare の実チャレンジが本番ドメイン以外では成立しないため、送信ボタンの活性化だけをダミートークンで再現する。本番ドメインではこの抜け道は使われない（`js/booking.js` の `isLocalDev` 参照）
 
 ### 料金シミュレーター
 
@@ -247,11 +260,17 @@ GET  {GAS_URL}?date=2026-09-15
 
 ```
 POST {GAS_URL}
-body: { date, time, name, email, tel, message, token }
+body: { date, time, name, email, tel, message, token,
+        turnstileToken, company_url, elapsed }
 →    { "status": "success", "reservationId": "R-20260915-1030" }
 →    { "status": "conflict" }
 →    { "status": "error", "message": "…" }
 ```
+
+`turnstileToken` は Cloudflare Turnstile のレスポンス、`company_url` はハニーポット
+（人間なら空のまま）、`elapsed` はページ表示からの経過ミリ秒です。
+スパム判定・入力不備のいずれで拒否された場合も `message` は同じ汎用文言になります
+（具体的な理由は返さず、GAS の実行ログにのみ残します。下記「スパム対策」参照）。
 
 営業時間 10:00〜21:00 を90分刻みで割ると、開始時刻は
 `10:00 / 11:30 / 13:00 / 14:30 / 16:00 / 17:30 / 19:00` の7枠になります
@@ -299,15 +318,45 @@ body: { date, time, name, email, tel, message, token }
      SPREADSHEET_ID: '控えたID',
      SHEET_NAME: '予約一覧',
      ...
+     MAIL_TO_ADMIN: '通知を受け取りたいメールアドレス',
+     TURNSTILE_EXPECTED_HOSTNAME: '公開先のドメイン（例: wada3333.github.io）',
+     ...
    };
    ```
    営業時間・定休日・受付期間は、フロント側の `config.js` の `BOOKING` と必ず同じ値にしてください。
 
-4. **初期化を実行する**
-   エディタ上で関数 `setup` を選んで実行します（初回は権限の承認が必要です）。
-   シートと見出し行が作成されます。
+4. **Turnstile のシークレットキーを設定する**
+   Cloudflare ダッシュボード（dash.cloudflare.com → Turnstile）で該当ウィジェットを開き、
+   **Secret Key** を控えます（**Site Key** はフロントの公開値で、`index.html` の
+   `.cf-turnstile` の `data-sitekey` と `config.js` の `TURNSTILE_SITE_KEY` に置いてあるものと
+   同じ値です。差し替える場合はこの2箇所を揃えてください）。
 
-5. **ウェブアプリとしてデプロイ**
+   Apps Script エディタの左メニュー「プロジェクトの設定」（歯車アイコン）→
+   「スクリプト プロパティ」→「スクリプト プロパティを追加」で、次を登録します。
+
+   | プロパティ | 値 |
+   |---|---|
+   | `TURNSTILE_SECRET` | 控えた Secret Key |
+
+   コードには一切書きません。`gas/Code.gs` は
+   `PropertiesService.getScriptProperties().getProperty('TURNSTILE_SECRET')`
+   で読み出します。設定できたかは関数 `testTurnstileSecretConfigured` を実行して確認できます
+   （ダミートークンを渡すので `false` と出るのが正常です。「未設定です」と出た場合は再確認してください）。
+
+5. **初期化を実行する**
+   エディタ上で関数 `setup` を選んで実行します（初回は権限の承認が必要です）。
+   シートと見出し行（「通知済み」列を含む）が作成されます。
+
+6. **通知トリガーを設定する**
+   予約の通知メールは即時送信ではなく、1日1回まとめて送る方式です。関数
+   `installNotifyTrigger` を1度だけ実行すると、`notifyPendingReservations` を
+   毎朝9時台に実行する時間主導トリガーが登録されます。
+
+   コードから設定する代わりに、エディタ左メニューの「トリガー」（時計アイコン）→
+   「トリガーを追加」から、関数 `notifyPendingReservations` ／ イベントのソース
+   「時間主導型」／「日タイマー」を手動で設定しても構いません。
+
+7. **ウェブアプリとしてデプロイ**
    「デプロイ → 新しいデプロイ → 種類の選択：ウェブアプリ」
 
    | 項目 | 設定 |
@@ -317,19 +366,22 @@ body: { date, time, name, email, tel, message, token }
 
    発行された `https://script.google.com/macros/s/××××/exec` をコピーします。
 
-6. **フロント側に設定**
+8. **フロント側に設定**
    ```js
    // config.js
    window.SC_CONFIG = {
      GAS_URL: 'https://script.google.com/macros/s/××××/exec',
+     TURNSTILE_SITE_KEY: '0x4AAAAAAExaLk9Ab67Q0ueS', // index.html の data-sitekey と同じ値
      ...
    };
    ```
-   設定した時点でモックから実通信に切り替わります。
+   `GAS_URL` を設定した時点でモックから実通信に切り替わります。
 
-7. **確認**
+9. **確認**
    ブラウザで `{GAS_URL}?date=2026-09-15` を開き、`{"date":"2026-09-15","slots":[...]}` が返れば成功です。
    GASエディタの `testGetSlots` を実行してログで確認することもできます。
+   予約フォームから実際に1件送信し、スプレッドシートに行が追加されること、
+   `debugDailyCount` で受付件数が加算されていることを確認してください。
 
 ### GAS実装のポイント
 
@@ -337,8 +389,15 @@ body: { date, time, name, email, tel, message, token }
 - **サニタイズ** — 制御文字と `< >` を除去、先頭の `= + - @` を削除（スプレッドシートの数式インジェクション対策）、項目ごとに文字数を制限
 - **サーバー側バリデーション** — 日付形式・受付期間・定休日・時刻が営業枠にあるか・メール形式・電話形式・トークンの有無を再検証します（フロントの検証だけに依存しません）
 - **CORS** — GASのウェブアプリはプリフライトを避ける必要があるため、POST は `Content-Type: text/plain;charset=utf-8` で JSON 文字列を送り、`e.postData.contents` で受けています
-- **メール送信** — `CONFIG.SEND_MAIL` を `true` にすると予約者と管理者に確認メールを送ります（既定は `false`）
+- **スパム対策** — JSONパース失敗・ハニーポット・経過時間・入力不備・Turnstile検証・日次上限の
+  順に検証し、どれで拒否した場合もレスポンスは同じ汎用メッセージにします（理由は
+  `Logger.log` にのみ記録）。判定ロジックの詳細は上記「スパム対策」を参照してください
+- **通知メール** — 予約ごとの即時送信はしていません。`notifyPendingReservations` が
+  シートの「通知済み」列を見て、未通知分をまとめて1通で `MAIL_TO_ADMIN` に送ります
+  （空のままだと送信をスキップし、`Logger.log` に記録するだけです）
 - 予約のキャンセルはシートの「ステータス」列を `キャンセル` にすると、その枠が再び空き枠として返ります
+- リクエストヘッダは GAS の `doPost(e)` から取得できないため、Origin/Referer 検査や
+  IPベースのレート制限は実装していません（Turnstile・ハニーポット・経過時間・日次上限で代替しています）
 
 ---
 
@@ -351,6 +410,7 @@ body: { date, time, name, email, tel, message, token }
 | CSS | カスタムプロパティ、Grid / Flexbox、`content-visibility`、`color-mix()`。プリプロセッサ不使用 |
 | フォント | Webフォントなし。システムフォント（日本語）＋等幅フォントの2系統 |
 | バックエンド | Google Apps Script + スプレッドシート |
+| 外部サービス | Cloudflare Turnstile（予約フォームのスパム対策。`api.js` を `async`/`defer` で読み込む唯一の外部スクリプト） |
 | 計測 | `window.dataLayer`（GTM互換）／Microsoft Clarity の設置箇所を用意 |
 | テスト | Node.js 標準の `node:test`（料金計算のユニットテスト12件）＋ CDP直叩きのE2Eスクリプト |
 | 計測ツール | Lighthouse 12（`tools/lighthouse-run.mjs` で複数回実行して中央値を算出） |
@@ -566,6 +626,10 @@ Chrome DevTools Protocol を直接叩いて、実ブラウザ上で以下を検�
 | ヒーロー動画（モバイル幅） | 動画要素が生成されず、mp4 のリクエストが 0 件 |
 | ヒーロー動画（reduced-motion） | 同上。静止画のみ表示 |
 
+テスト用の予約日は実行時点から動的に計算しています（`tools/e2e-check.mjs` の
+`computeTestDate`）。日付をハードコードすると、実行する日によって過去日付になり
+バリデーションで弾かれてしまうためです（水曜定休も自動で避けます）。
+
 ### Lighthouse
 
 ```bash
@@ -643,6 +707,13 @@ studio-core-lp/
 - **`content-visibility: auto` と スクロール計測の精度**：画面外セクションは実測ベースの推定高さで場所を取るため、ページ最下部まで一度もスクロールしていない状態では文書全体の高さが実際より数%大きく見積もられます。`scroll_depth` の閾値もその分だけ保守的になります（スクロールが進むと実寸に収束します）
 - **モバイルの Lighthouse スコアは計測マシンの負荷に強く依存します**。上記の実測値は `benchmarkIndex` 2,900 前後で取得したものです
 - **`config.js` の `GAS_URL` は未設定**（モック動作）です。実サーバーに繋ぐ場合は上記セットアップ手順に従ってください
+- **Cloudflare Turnstile は登録済みドメイン専用**です。`0x4AAAAAAExaLk9Ab67Q0ueS` は
+  `wada3333.github.io` 用に登録された Site Key のため、`localhost` や `127.0.0.1` で開くと
+  チャレンジがエラーになります（コンソールに `[Cloudflare Turnstile] Error: ...` が出ます）。
+  ローカル確認用に、GAS_URL が未設定かつ localhost 系のホストで開いている場合だけ、
+  送信ボタンの活性化をダミートークンで再現するようにしています（`js/booking.js` の
+  `isLocalDev` / `initialTurnstileToken`）。本番ドメイン・GAS_URL 設定時はこの抜け道は使われず、
+  実トークンが必須のままです
 - モックの予約状況は `sessionStorage` に保持しているため、タブを閉じるとリセットされます
 - 住所・電話番号・トレーナー・お客様の声はすべて架空です
 

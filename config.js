@@ -24,6 +24,15 @@ window.SC_CONFIG = {
   },
 
   /**
+   * Cloudflare Turnstile のサイトキー（公開値。フロントに埋め込んでよい）。
+   * index.html の `.cf-turnstile` の data-sitekey と必ず同じ値にすること。
+   * シークレットキーはここには置かない。GAS側で
+   * PropertiesService.getScriptProperties().getProperty('TURNSTILE_SECRET')
+   * から取得する（gas/Code.gs 参照、README の設定手順も参照）。
+   */
+  TURNSTILE_SITE_KEY: '0x4AAAAAAExaLk9Ab67Q0ueS',
+
+  /**
    * デバッグモード。true にするか URL に ?debug=1 を付けると
    * dataLayer へ push した内容をコンソールに出力します。
    */

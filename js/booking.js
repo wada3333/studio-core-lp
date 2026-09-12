@@ -22,10 +22,63 @@
   var TIMEOUT = config.REQUEST_TIMEOUT_MS || 10000;
   var track = window.SCAnalytics ? window.SCAnalytics.push : function () {};
 
+  // ページが表示された時刻。送信時に経過ミリ秒を GAS へ同送し、
+  // 極端に速い送信（bot）や極端に古いリクエスト（リプレイ）を弾く材料にする。
+  var pageLoadedAt = Date.now();
+
   var mockMode = '';
   try {
     mockMode = new URLSearchParams(window.location.search).get('mock') || '';
   } catch (e) { /* URLSearchParams 非対応は無視 */ }
+
+  /* ====================================================================
+     Cloudflare Turnstile
+     ---------------------------------------------------------------------
+     実装方針:
+     - サイトキーは config.js の TURNSTILE_SITE_KEY（index.html の
+       data-sitekey と同じ値）。シークレットキーはフロントに一切置かない。
+     - ウィジェットは index.html に静的に配置し、Turnstile のスクリプトが
+       自動描画する（暗黙的レンダリング）。
+     - コールバック（data-callback 等）は window 直下の関数名で参照される。
+       この関数はスクリプト評価時に同期的に定義するため、Turnstile の
+       スクリプトが <head> で async 実行されても、実際にチャレンジが完了して
+       コールバックが呼ばれる（ネットワーク往復を伴うため必ず後になる）
+       タイミングには確実に定義済みになる。
+     - GAS_URL が未設定（モック動作）かつ localhost 等で開いている場合は、
+       実際の Cloudflare ドメイン検証が通らないため、ローカル確認用の
+       ダミートークンで送信ボタンの活性化だけ再現する。本番ドメイン
+       （GAS_URL 設定時）では常に実トークンが必須で、この抜け道は使われない。
+     ==================================================================== */
+  var isLocalDev = window.location.protocol === 'file:' ||
+    /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
+
+  function initialTurnstileToken() {
+    return (!config.GAS_URL && isLocalDev) ? 'local-dev-bypass' : '';
+  }
+
+  window.scHandleTurnstileToken = function (token) {
+    state.turnstileToken = token || '';
+    if (dom.submit) renderSubmit();
+  };
+
+  window.scHandleTurnstileExpired = function () {
+    state.turnstileToken = initialTurnstileToken();
+    if (dom.submit) renderSubmit();
+  };
+
+  window.scHandleTurnstileError = function () {
+    state.turnstileToken = initialTurnstileToken();
+    if (dom.submit) renderSubmit();
+  };
+
+  /** 送信のたびにウィジェットをリセットする（トークンは1回限りのため）。 */
+  function resetTurnstile() {
+    if (window.turnstile && typeof window.turnstile.reset === 'function') {
+      try { window.turnstile.reset(); } catch (e) { /* ウィジェット未初期化時は無視 */ }
+    }
+    state.turnstileToken = initialTurnstileToken();
+    if (dom.submit) renderSubmit();
+  }
 
   /* ====================================================================
      状態（単一オブジェクト）
@@ -41,7 +94,9 @@
     fieldErrors: {},
     submitted: false,
     reservationId: '',
-    token: createToken()
+    token: createToken(),
+    /** Cloudflare Turnstile のレスポンストークン。空のあいだは送信ボタンを無効化する。 */
+    turnstileToken: initialTurnstileToken()
   };
 
   var dom = {};
@@ -423,7 +478,8 @@
   }
 
   function renderSubmit() {
-    dom.submit.disabled = state.loading.submit;
+    // Turnstile のトークンが未取得のあいだは送信させない
+    dom.submit.disabled = state.loading.submit || !state.turnstileToken;
     dom.submit.textContent = state.loading.submit ? '送信しています…' : 'この内容で予約する';
     if (state.loading.submit) {
       setStatus(dom.submitStatus, 'loading', '<span class="spinner" aria-hidden="true"></span>予約を送信しています。画面を閉じずにお待ちください。');
@@ -559,6 +615,7 @@
   function onSubmit(ev) {
     ev.preventDefault();
     if (state.loading.submit) return; // 二重送信防止（ボタン無効化に加えた保険）
+    if (!state.turnstileToken) return; // Turnstile 未取得時の保険（ボタン無効化に加えた二重チェック）
 
     var firstInvalid = validateStep3();
     if (firstInvalid) {
@@ -584,7 +641,12 @@
       email: dom.email.value.trim(),
       tel: dom.tel.value.replace(/[-\s()＋]/g, ''),
       message: dom.message.value.trim(),
-      token: state.token
+      token: state.token,
+      // ハニーポット。人間なら空のまま。GAS 側で非空を検知して破棄する。
+      company_url: dom.honeypot ? dom.honeypot.value : '',
+      // ページ表示からの経過ミリ秒。GAS 側で短すぎる/長すぎるリクエストを弾く材料にする。
+      elapsed: Date.now() - pageLoadedAt,
+      turnstileToken: state.turnstileToken || ''
     };
 
     var call = apiPostReservation(payload);
@@ -618,6 +680,12 @@
         setError('submit', 'network', '送信に失敗しました。通信環境をご確認のうえ、もう一度お試しください。');
       }
       render();
+    }).finally(function () {
+      // 成功・失敗いずれの場合も、Turnstile のトークンは使い切り扱いにする。
+      // GAS 側でどこまで検証が進んだか（＝実際にトークンが消費されたか）は
+      // レスポンスから判別できない設計にしているため、常にリセットして
+      // 次回の送信には必ず新しいトークンを要求する。
+      resetTurnstile();
     });
   }
 
@@ -627,6 +695,7 @@
 
   function collect() {
     dom.form = document.getElementById('booking-form');
+    dom.honeypot = document.getElementById('booking-company-url');
     dom.stepList = document.getElementById('booking-steps');
     dom.step2 = document.getElementById('step-2');
     dom.step3 = document.getElementById('step-3');
@@ -718,6 +787,9 @@
 
     // 初期状態（STEP1 のみ表示・エラーなし）は index.html の初期マークアップと
     // 一致しているため、ここでの render() は不要。読み込み時の余計な再レイアウトを避ける。
+    // ただし送信ボタンの disabled は「Turnstile トークン未取得」を表す実質的な状態なので、
+    // ローカル確認用バイパスが効いている場合に解除できるよう renderSubmit() だけ呼ぶ。
+    renderSubmit();
   }
 
   if (document.readyState === 'loading') {

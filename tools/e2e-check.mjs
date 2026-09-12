@@ -17,6 +17,25 @@ const PORT = 9222;
 const CHROME = process.env.CHROME_PATH ||
   'C:/Program Files/Google/Chrome/Application/chrome.exe';
 
+/**
+ * テスト用の予約日を「実行時点から N 日後」で動的に計算する。
+ * 日付をハードコードすると、テストを実行する日によって過去日付になり
+ * バリデーションで弾かれてしまうため（水曜定休も避ける）。
+ */
+function computeTestDate(daysAhead) {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + daysAhead);
+  while (d.getDay() === 3) d.setDate(d.getDate() + 1); // 水曜定休を避ける
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return { iso: `${y}-${m}-${day}`, digits: `${y}${m}${day}` };
+}
+
+const TEST_DATE = computeTestDate(7);
+const TEST_DATE_2 = computeTestDate(8);
+
 const profile = mkdtempSync(join(tmpdir(), 'sc-e2e-'));
 const chrome = spawn(CHROME, [
   '--headless=new',
@@ -129,7 +148,7 @@ try {
     results.happyPath = await page.session.evaluate(`
       const s = ms => new Promise(r => setTimeout(r, ms));
       const d = document.getElementById('booking-date');
-      d.value = '2026-09-10';
+      d.value = '${TEST_DATE.iso}';
       d.dispatchEvent(new Event('change', { bubbles: true }));
       await s(120);
       const loading = document.getElementById('slots-status').className;
@@ -204,7 +223,7 @@ try {
     results[mode] = await page.session.evaluate(`
       const s = ms => new Promise(r => setTimeout(r, ms));
       const d = document.getElementById('booking-date');
-      d.value = '2026-09-11';
+      d.value = '${TEST_DATE_2.iso}';
       d.dispatchEvent(new Event('change', { bubbles: true }));
       await s(1100);
       if ('${mode}' === 'conflict') {
@@ -249,7 +268,7 @@ try {
       reached = id === 'booking-date';
     }
     // ヘッドレス Chrome の日付入力は yyyy-mm-dd の順にセグメントが並ぶ
-    await typeDigits(session, '20260910');
+    await typeDigits(session, TEST_DATE.digits);
     await sleep(1500);
     const afterDate = await focusOf();
 
@@ -271,8 +290,17 @@ try {
     await key(session, TAB);
     await session.send('Input.insertText', { text: '09011112222' });
     const beforeSubmit = await focusOf();
-    await key(session, TAB); // textarea
-    await key(session, TAB); // 送信ボタン
+    // 送信ボタンまでの間に textarea・Cloudflare Turnstile ウィジェットが挟まる。
+    // ウィジェットの内部構造（フォーカス可能な要素の数）は描画状態に依存するため、
+    // 固定回数の Tab ではなく「送信ボタンに着くまでタブする」方式にしている。
+    let reachedSubmit = false;
+    const submitTrail = [];
+    for (let i = 0; i < 8 && !reachedSubmit; i++) {
+      await key(session, TAB);
+      const id = await focusOf();
+      submitTrail.push(id);
+      reachedSubmit = id === 'booking-submit';
+    }
     const onSubmit = await focusOf();
     await key(session, ENTER);
     await sleep(1600);
@@ -290,6 +318,7 @@ try {
     `);
     results.keyboardOnly.trail = trail;
     results.keyboardOnly.checkpoints = { afterDate, onRadio, onNext, afterNext, beforeSubmit, onSubmit };
+    results.keyboardOnly.submitTrail = submitTrail;
     await closePage(page);
   }
 

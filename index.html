@@ -25,6 +25,11 @@
       imagesrcset="assets/images/hero-800.webp 800w, assets/images/hero-1200.webp 1200w, assets/images/hero.webp 1600w"
       imagesizes="100vw" fetchpriority="high">
 
+<!-- Cloudflare Turnstile（予約フォームのスパム対策）。data-sitekey は公開値で、
+     config.js の TURNSTILE_SITE_KEY と同じ値にすること。シークレットキーはここには置かない
+     （GAS側で PropertiesService のスクリプトプロパティから取得する）。 -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
 <!-- ===========================================================
      Critical CSS（css/critical.css のインライン展開。編集時は両方を更新すること）
      残りの CSS は下の preload で非同期に読み込む。
@@ -433,6 +438,14 @@ button,input,select,textarea{font:inherit;color:inherit}
         </ol>
 
         <form id="booking-form" novalidate>
+          <!-- ハニーポット：人間には見えない項目。ボットが自動入力すると GAS 側で拒否する。
+               display:none だと「非表示要素は無視する」対策をしているボットがいるため、
+               画面外へ飛ばす方式にしている。tabindex="-1" と aria-hidden="true" で
+               キーボード操作・スクリーンリーダーの経路からも外す。 -->
+          <input type="text" name="company_url" id="booking-company-url"
+                 style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;"
+                 tabindex="-1" autocomplete="off" aria-hidden="true">
+
           <!-- STEP 1 -->
           <div class="step" id="step-1">
             <h3 class="step__title" id="step-1-title" tabindex="-1">ご希望の日付を選ぶ</h3>
@@ -498,8 +511,17 @@ button,input,select,textarea{font:inherit;color:inherit}
 
             <div class="status" id="submit-status" role="status" aria-live="polite"></div>
 
+            <!-- Cloudflare Turnstile ウィジェット。sitekey は config.js の TURNSTILE_SITE_KEY と同じ値。
+                 各コールバックは js/booking.js が window に定義する（トークン取得/失効/エラーで
+                 送信ボタンの活性状態を切り替える）。 -->
+            <div class="cf-turnstile" id="turnstile-widget"
+                 data-sitekey="0x4AAAAAAExaLk9Ab67Q0ueS"
+                 data-callback="scHandleTurnstileToken"
+                 data-expired-callback="scHandleTurnstileExpired"
+                 data-error-callback="scHandleTurnstileError"></div>
+
             <div class="form-actions">
-              <button type="submit" class="btn" id="booking-submit">この内容で予約する</button>
+              <button type="submit" class="btn" id="booking-submit" disabled>この内容で予約する</button>
               <button type="button" class="btn btn--ghost btn--small" id="back-to-step-2">時間を選び直す</button>
             </div>
           </div>

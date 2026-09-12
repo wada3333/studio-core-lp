@@ -661,6 +661,14 @@ textarea[aria-invalid="true"] {
   }
 }
 
+/* Cloudflare Turnstile ウィジェット。iframe を内包するため幅は固定で、
+   縮小画面でも崩れないよう max-width で収めている。 */
+.cf-turnstile {
+  margin-top: 1.5rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+
 .form-actions {
   margin-top: 1.75rem;
   display: flex;
