@@ -34,40 +34,76 @@
   /* ====================================================================
      Cloudflare Turnstile
      ---------------------------------------------------------------------
-     実装方針:
-     - サイトキーは config.js の TURNSTILE_SITE_KEY（index.html の
-       data-sitekey と同じ値）。シークレットキーはフロントに一切置かない。
-     - ウィジェットは index.html に静的に配置し、Turnstile のスクリプトが
-       自動描画する（暗黙的レンダリング）。ウィジェットには localhost /
-       127.0.0.1 も許可ホストとして登録済みのため、ローカルでも実チャレンジが
-       解決しトークンが取得できる（バイパスは設けていない）。
-     - コールバック（data-callback 等）は window 直下の関数名で参照される。
-       この関数はスクリプト評価時に同期的に定義するため、Turnstile の
-       スクリプトが <head> で async 実行されても、実際にチャレンジが完了して
-       コールバックが呼ばれる（ネットワーク往復を伴うため必ず後になる）
-       タイミングには確実に定義済みになる。
+     トークンの有無は state に持たせず、常に DOM（Turnstile が生成する
+     隠し入力 [name="cf-turnstile-response"]）から直接読む。理由:
+
+     index.html の <script src="...api.js" async defer> は async と defer を
+     両方指定しているが、HTML の仕様上これは「async」として扱われ defer は
+     無視される（async 指定があるスクリプトはパーサに関係なく取得でき次第
+     即実行される）。Turnstile の「マネージド」判定は Cloudflare 側の
+     クリアランス情報などにより数百ミリ秒で解決することがあり、その場合
+     data-callback（window.scHandleTurnstileToken 等）が、まだ defer 実行前で
+     定義されていないタイミングで呼ばれてしまう可能性がある。
+     実際に本番環境で「トークンは取得できているのに送信ボタンが disabled の
+     ままになる」不具合が発生し、これが原因と判断した。
+
+     対策として、コールバックの発火有無に依存しない構成にしている。
+     - getTurnstileToken() が DOM の値を直接読む（真実の情報源はこれだけ）
+     - コールバックは「取れたら renderSubmit() を呼んで即座に反映する」
+       高速経路として残すが、呼ばれなくても後述のポーリングが拾う
+     - startTurnstilePolling() が一定間隔で renderSubmit() を呼び、
+       コールバックの取りこぼしや、トークン失効（約300秒）で DOM の値が
+       空に戻るケースにも追従する
      ==================================================================== */
-  window.scHandleTurnstileToken = function (token) {
-    state.turnstileToken = token || '';
+
+  /**
+   * Turnstile が生成する隠し入力から、現在有効なトークンを直接読む。
+   * ウィジェットのコンテナ（#turnstile-widget）に限定して検索し、
+   * 万一ページ内に同名の入力が他にあっても拾わないようにしている。
+   */
+  function getTurnstileToken() {
+    var input = document.querySelector('#turnstile-widget [name="cf-turnstile-response"]');
+    return (input && input.value) || '';
+  }
+
+  // コールバックが正しいタイミングで呼ばれた場合の高速経路。
+  // state は更新せず、DOM が更新された後に再描画するだけにする
+  // （getTurnstileToken() が唯一の情報源であるという前提を崩さないため）。
+  window.scHandleTurnstileToken = function () {
     if (dom.submit) renderSubmit();
   };
 
   window.scHandleTurnstileExpired = function () {
-    state.turnstileToken = '';
     if (dom.submit) renderSubmit();
   };
 
   window.scHandleTurnstileError = function () {
-    state.turnstileToken = '';
     if (dom.submit) renderSubmit();
   };
+
+  /**
+   * コールバックの取りこぼし・トークン失効（約300秒）を拾うためのポーリング。
+   * getTurnstileToken() は DOM 参照だけの軽い処理なので、短い間隔で回しても
+   * 実害はない。送信完了後は止める。
+   */
+  var turnstilePollTimer = null;
+  function startTurnstilePolling() {
+    if (turnstilePollTimer) return;
+    turnstilePollTimer = setInterval(function () {
+      if (state.submitted) {
+        clearInterval(turnstilePollTimer);
+        turnstilePollTimer = null;
+        return;
+      }
+      if (dom.submit) renderSubmit();
+    }, 500);
+  }
 
   /** 送信のたびにウィジェットをリセットする（トークンは1回限りのため）。 */
   function resetTurnstile() {
     if (window.turnstile && typeof window.turnstile.reset === 'function') {
       try { window.turnstile.reset(); } catch (e) { /* ウィジェット未初期化時は無視 */ }
     }
-    state.turnstileToken = '';
     if (dom.submit) renderSubmit();
   }
 
@@ -85,9 +121,7 @@
     fieldErrors: {},
     submitted: false,
     reservationId: '',
-    token: createToken(),
-    /** Cloudflare Turnstile のレスポンストークン。空のあいだは送信ボタンを無効化する。 */
-    turnstileToken: ''
+    token: createToken()
   };
 
   var dom = {};
@@ -470,7 +504,7 @@
 
   function renderSubmit() {
     // Turnstile のトークンが未取得のあいだは送信させない
-    dom.submit.disabled = state.loading.submit || !state.turnstileToken;
+    dom.submit.disabled = state.loading.submit || !getTurnstileToken();
     dom.submit.textContent = state.loading.submit ? '送信しています…' : 'この内容で予約する';
     if (state.loading.submit) {
       setStatus(dom.submitStatus, 'loading', '<span class="spinner" aria-hidden="true"></span>予約を送信しています。画面を閉じずにお待ちください。');
@@ -606,7 +640,7 @@
   function onSubmit(ev) {
     ev.preventDefault();
     if (state.loading.submit) return; // 二重送信防止（ボタン無効化に加えた保険）
-    if (!state.turnstileToken) return; // Turnstile 未取得時の保険（ボタン無効化に加えた二重チェック）
+    if (!getTurnstileToken()) return; // Turnstile 未取得時の保険（ボタン無効化に加えた二重チェック）
 
     var firstInvalid = validateStep3();
     if (firstInvalid) {
@@ -637,7 +671,7 @@
       company_url: dom.honeypot ? dom.honeypot.value : '',
       // ページ表示からの経過ミリ秒。GAS 側で短すぎる/長すぎるリクエストを弾く材料にする。
       elapsed: Date.now() - pageLoadedAt,
-      turnstileToken: state.turnstileToken || ''
+      turnstileToken: getTurnstileToken()
     };
 
     var call = apiPostReservation(payload);
@@ -714,6 +748,10 @@
 
   function init() {
     if (!collect()) return;
+
+    // コールバックの取りこぼし・トークン失効に追従するためのポーリングを開始する
+    // （getTurnstileToken() 参照。詳細は Turnstile セクションのコメントを参照）。
+    startTurnstilePolling();
 
     var min = shiftDays(booking.minDaysAhead == null ? 1 : booking.minDaysAhead);
     var max = shiftDays(booking.maxDaysAhead == null ? 60 : booking.maxDaysAhead);
