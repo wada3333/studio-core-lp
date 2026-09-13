@@ -414,7 +414,7 @@ body: { date, time, name, email, tel, message, token,
 | CSS | カスタムプロパティ、Grid / Flexbox、`content-visibility`、`color-mix()`。プリプロセッサ不使用 |
 | フォント | Webフォントなし。システムフォント（日本語）＋等幅フォントの2系統 |
 | バックエンド | Google Apps Script + スプレッドシート |
-| 外部サービス | Cloudflare Turnstile（予約フォームのスパム対策。`api.js` を `async`/`defer` で読み込む唯一の外部スクリプト） |
+| 外部サービス | Cloudflare Turnstile（予約フォームのスパム対策。`api.js` を `async` で読み込む唯一の外部スクリプト） |
 | 計測 | `window.dataLayer`（GTM互換）／Microsoft Clarity の設置箇所を用意 |
 | テスト | Node.js 標準の `node:test`（料金計算のユニットテスト12件）＋ CDP直叩きのE2Eスクリプト |
 | 計測ツール | Lighthouse 12（`tools/lighthouse-run.mjs` で複数回実行して中央値を算出） |

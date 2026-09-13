@@ -37,15 +37,17 @@
      トークンの有無は state に持たせず、常に DOM（Turnstile が生成する
      隠し入力 [name="cf-turnstile-response"]）から直接読む。理由:
 
-     index.html の <script src="...api.js" async defer> は async と defer を
-     両方指定しているが、HTML の仕様上これは「async」として扱われ defer は
-     無視される（async 指定があるスクリプトはパーサに関係なく取得でき次第
-     即実行される）。Turnstile の「マネージド」判定は Cloudflare 側の
+     index.html の <script src="...api.js" async> は async 単独指定（defer は
+     付けていない。HTML の仕様上 async と defer を両方指定すると async が
+     優先され defer は無視されるため、両方書くこと自体が実態と食い違う）。
+     async 指定があるスクリプトはパーサに関係なく取得でき次第即実行されるため、
+     このスクリプトは他の defer スクリプト（このファイル自身を含む）より
+     先に走ることがある。Turnstile の「マネージド」判定は Cloudflare 側の
      クリアランス情報などにより数百ミリ秒で解決することがあり、その場合
-     data-callback（window.scHandleTurnstileToken 等）が、まだ defer 実行前で
-     定義されていないタイミングで呼ばれてしまう可能性がある。
-     実際に本番環境で「トークンは取得できているのに送信ボタンが disabled の
-     ままになる」不具合が発生し、これが原因と判断した。
+     data-callback（window.scHandleTurnstileToken 等）が、このファイルの
+     実行前＝まだその関数が定義されていないタイミングで呼ばれてしまう
+     可能性がある。実際に本番環境で「トークンは取得できているのに送信
+     ボタンが disabled のままになる」不具合が発生し、これが原因と判断した。
 
      対策として、コールバックの発火有無に依存しない構成にしている。
      - getTurnstileToken() が DOM の値を直接読む（真実の情報源はこれだけ）

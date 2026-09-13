@@ -27,8 +27,13 @@
 
 <!-- Cloudflare Turnstile（予約フォームのスパム対策）。data-sitekey は公開値で、
      config.js の TURNSTILE_SITE_KEY と同じ値にすること。シークレットキーはここには置かない
-     （GAS側で PropertiesService のスクリプトプロパティから取得する）。 -->
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+     （GAS側で PropertiesService のスクリプトプロパティから取得する）。
+     async のみを指定している（defer も付けると HTML 仕様上 async が優先され defer は
+     無視される。両方書くと実態と食い違うため async 単独にしている）。
+     このスクリプトは他の defer スクリプト（js/booking.js 等）の実行より先に
+     取得でき次第すぐ実行され得る前提で、js/booking.js 側はその前提で
+     タイミングに依存しない実装にしてある（該当箇所のコメント参照）。 -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async></script>
 
 <!-- ===========================================================
      Critical CSS（css/critical.css のインライン展開。編集時は両方を更新すること）
